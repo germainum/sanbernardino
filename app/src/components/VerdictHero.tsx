@@ -1,0 +1,54 @@
+import type { Direction, Verdict } from "@san-bernardino/core";
+import { C, VERDICT_META } from "../theme";
+
+const DIRECTION_ROUTE_LABELS: Record<Direction, { from: string; to: string }> = {
+  italie: { from: "Coire / Zurich", to: "Bellinzone / Italie" },
+  suisse: { from: "Bellinzone / Italie", to: "Coire / Zurich" },
+};
+
+interface VerdictHeroProps {
+  direction: Direction;
+  verdict: Verdict;
+  reason: string;
+}
+
+export function VerdictHero({ direction, verdict, reason }: VerdictHeroProps) {
+  const v = VERDICT_META[verdict];
+  const { from, to } = DIRECTION_ROUTE_LABELS[direction];
+
+  return (
+    <div
+      style={{
+        borderRadius: 26,
+        padding: 22,
+        marginBottom: 16,
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(160deg,#2b5236 0%,#3f7a3f 55%,#6fb03e 100%)",
+        boxShadow: "0 12px 30px rgba(34,67,46,0.28)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: 0.5,
+          pointerEvents: "none",
+          background: "radial-gradient(70% 50% at 80% 0%, rgba(255,255,255,0.25), transparent 60%)",
+        }}
+      />
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{from}</span>
+          <span style={{ color: C.lime }}>→</span>
+          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{to}</span>
+        </div>
+        <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: 999, background: v.chipBg, color: v.chipInk, fontSize: 12, fontWeight: 800, marginBottom: 12 }}>
+          {v.chip}
+        </div>
+        <div style={{ fontSize: 32, fontWeight: 800, color: "#fff", lineHeight: 1.05 }}>{v.title}</div>
+        <p style={{ margin: "12px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>{reason}</p>
+      </div>
+    </div>
+  );
+}

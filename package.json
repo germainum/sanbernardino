@@ -1,0 +1,19 @@
+{
+  "name": "san-bernardino",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "app",
+    "supabase/seed"
+  ],
+  "scripts": {
+    "test": "npm run test -w packages/core",
+    "dev": "npm run dev -w app",
+    "build": "npm run build -w app",
+    "db:seed": "npm run seed -w supabase/seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

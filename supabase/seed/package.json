@@ -1,0 +1,18 @@
+{
+  "name": "@san-bernardino/seed",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "seed": "tsx generate-synthetic-snapshots.ts"
+  },
+  "dependencies": {
+    "@san-bernardino/core": "*",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
