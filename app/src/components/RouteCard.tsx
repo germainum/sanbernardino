@@ -27,14 +27,47 @@ export function RouteCard({ name, meta, data, delay, thumbLabel, recommended }: 
         borderRadius: 22,
         padding: 12,
         border: `1.5px solid ${recommended ? C.lime : "transparent"}`,
-        boxShadow: recommended ? "0 8px 24px rgba(91,156,28,0.18)" : "0 4px 16px rgba(24,39,28,0.06)",
+        boxShadow: recommended ? "0 8px 24px rgba(91,156,28,0.18)" : C.shadowCard,
       }}
     >
-      <div style={{ width: 74, height: 74, borderRadius: 16, flexShrink: 0, background: st.grad, display: "flex", alignItems: "flex-end", padding: 8 }}>
+      <div
+        style={{
+          width: 74,
+          height: 74,
+          borderRadius: 16,
+          flexShrink: 0,
+          background: st.grad,
+          display: "flex",
+          alignItems: "flex-end",
+          padding: 8,
+          filter: recommended ? undefined : "grayscale(0.5) opacity(0.85)",
+        }}
+      >
         <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", opacity: 0.9, textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{thumbLabel}</span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 17, fontWeight: 700, color: C.ink }}>{name}</div>
+        <div style={{ fontSize: 17, fontWeight: recommended ? 800 : 700, color: C.ink, display: "flex", alignItems: "center", gap: 6 }}>
+          {recommended && (
+            <span
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                background: C.lime,
+                color: "#1c3208",
+                fontSize: 10,
+                fontWeight: 800,
+                flexShrink: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ✓
+            </span>
+          )}
+          <span>{name}</span>
+        </div>
         <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>{meta}</div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "3px 10px", borderRadius: 999, background: st.soft }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: st.color }} />

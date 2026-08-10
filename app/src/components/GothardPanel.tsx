@@ -19,7 +19,7 @@ export function GothardPanel({ gothard, recommended }: GothardPanelProps) {
         opacity: recommended ? 1 : 0.75,
       }}
     >
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", color: recommended ? "#b9832a" : C.muted, marginBottom: 10 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", color: recommended ? C.amberDeep : C.muted, marginBottom: 10 }}>
         {recommended ? "ITINÉRAIRE ALTERNATIF · A2" : "ALTERNATIVE ÉCARTÉE · A2"}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

@@ -15,7 +15,7 @@ export function HistoryGraph({ history, routeLabel }: HistoryGraphProps) {
   const gap = (W - pad * 2) / n;
 
   return (
-    <div style={{ background: C.card, borderRadius: 22, padding: "16px 18px", marginBottom: 16, boxShadow: "0 4px 16px rgba(24,39,28,0.06)" }}>
+    <div style={{ background: C.card, borderRadius: 22, padding: "16px 18px", marginBottom: 16, boxShadow: C.shadowCard }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
         <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: C.muted }}>RETARD · 3 DERNIÈRES HEURES</span>
         <span style={{ fontSize: 11, color: C.muted, fontWeight: 700 }}>{routeLabel}</span>

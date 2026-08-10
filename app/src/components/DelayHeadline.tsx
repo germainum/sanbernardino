@@ -36,7 +36,7 @@ export function DelayHeadline({ route, state, delay, totalMin, updatedLabel, sou
         borderRadius: 22,
         padding: "18px 20px",
         marginBottom: 16,
-        boxShadow: "0 4px 16px rgba(24,39,28,0.06)",
+        boxShadow: C.shadowCard,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

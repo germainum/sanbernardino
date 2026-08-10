@@ -28,7 +28,7 @@ const DEFAULT_PREFS: DevicePrefs = {
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: C.card, borderRadius: 22, padding: 18, marginBottom: 16, boxShadow: "0 4px 16px rgba(24,39,28,0.06)" }}>
+    <div style={{ background: C.card, borderRadius: 22, padding: 18, marginBottom: 16, boxShadow: C.shadowCard }}>
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: C.muted, marginBottom: 12 }}>{title.toUpperCase()}</div>
       {children}
     </div>
@@ -126,7 +126,7 @@ export function Settings({ onBack }: SettingsProps) {
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
           <button
             onClick={onBack}
-            style={{ background: C.card, borderRadius: 999, width: 40, height: 40, fontSize: 18, fontWeight: 800, color: C.forest, boxShadow: "0 2px 8px rgba(24,39,28,0.08)" }}
+            style={{ background: C.card, borderRadius: 999, width: 40, height: 40, fontSize: 18, fontWeight: 800, color: C.forest, boxShadow: C.shadowChip }}
             aria-label="Retour"
           >
             ←

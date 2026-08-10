@@ -16,7 +16,7 @@ export interface BreakdownRow {
 
 export function Breakdown({ rows }: { rows: BreakdownRow[] }) {
   return (
-    <div style={{ background: C.card, borderRadius: 22, padding: "14px 8px 8px", marginBottom: 16, boxShadow: "0 4px 16px rgba(24,39,28,0.06)" }}>
+    <div style={{ background: C.card, borderRadius: 22, padding: "14px 8px 8px", marginBottom: 16, boxShadow: C.shadowCard }}>
       <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr 1fr", padding: "0 12px 8px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.06em", color: C.muted }}>
         <span>ROUTE</span>
         <span style={{ textAlign: "right" }}>BASE</span>

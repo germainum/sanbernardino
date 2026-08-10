@@ -113,7 +113,7 @@ function CountryNode({ cx, cy, country, label, labelY }: CountryNodeProps) {
           <circle cx={cx} cy={cy} r={15} fill="none" stroke="#fff" strokeWidth="1.6" />
         </>
       )}
-      <text x={cx} y={labelY} textAnchor="middle" fontSize="11.5" fontWeight="800" fill={isCH ? C.forest : "#b9832a"} fontFamily="Nunito, sans-serif">
+      <text x={cx} y={labelY} textAnchor="middle" fontSize="11.5" fontWeight="800" fill={isCH ? C.forest : C.amberDeep} fontFamily="Nunito, sans-serif">
         {label}
       </text>
     </g>
@@ -141,7 +141,7 @@ export function AxisMap({ evaluated }: AxisMapProps) {
   const labels = DIRECTION_LABELS[snapshot.direction];
 
   return (
-    <div style={{ background: C.card, borderRadius: 24, padding: 6, marginBottom: 16, boxShadow: "0 4px 16px rgba(24,39,28,0.06)" }}>
+    <div style={{ background: C.card, borderRadius: 24, padding: 6, marginBottom: 16, boxShadow: C.shadowCard }}>
       <svg viewBox="0 0 340 400" style={{ width: "100%", display: "block" }}>
         <path d="M92,232 L138,166 L166,198 L198,156 L242,232 Z" fill="#E4EAD9" />
         <path d="M138,166 L150,184 L126,184 Z" fill="#fff" opacity="0.8" />

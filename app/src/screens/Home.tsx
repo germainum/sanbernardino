@@ -90,7 +90,7 @@ export function Home({ onOpenSettings }: HomeProps) {
             <button
               onClick={onOpenSettings}
               aria-label="Réglages"
-              style={{ width: 42, height: 42, borderRadius: "50%", background: C.card, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: "0 2px 8px rgba(24,39,28,0.08)" }}
+              style={{ width: 42, height: 42, borderRadius: "50%", background: C.card, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: C.shadowChip }}
             >
               ⚙
             </button>
@@ -135,8 +135,16 @@ export function Home({ onOpenSettings }: HomeProps) {
         <AxisMap evaluated={evaluated} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-          <RouteCard name="Le Tunnel du San Bernardino" meta="6,6 km · vignette" thumbLabel="TUNNEL" data={snapshot.tunnel} delay={evaluated.delays.tunnel ?? null} recommended={evaluated.verdict === "tunnel"} />
-          <RouteCard name="La Route du Col du San Bernardino" meta="Passo del San Bernardino · 2065 m · gratuit" thumbLabel="COL" data={snapshot.col} delay={evaluated.delays.col ?? null} recommended={evaluated.verdict === "col"} />
+          {/* The recommended card always renders first — order itself is a non-color signal. */}
+          {(() => {
+            const tunnelCard = (
+              <RouteCard key="tunnel" name="Le Tunnel du San Bernardino" meta="6,6 km · vignette" thumbLabel="TUNNEL" data={snapshot.tunnel} delay={evaluated.delays.tunnel ?? null} recommended={evaluated.verdict === "tunnel"} />
+            );
+            const colCard = (
+              <RouteCard key="col" name="La Route du Col du San Bernardino" meta="Passo del San Bernardino · 2065 m · gratuit" thumbLabel="COL" data={snapshot.col} delay={evaluated.delays.col ?? null} recommended={evaluated.verdict === "col"} />
+            );
+            return evaluated.verdict === "col" ? [colCard, tunnelCard] : [tunnelCard, colCard];
+          })()}
         </div>
 
         {showGothard && snapshot.gothard && <GothardPanel gothard={snapshot.gothard} recommended={gothardRecommended} />}
