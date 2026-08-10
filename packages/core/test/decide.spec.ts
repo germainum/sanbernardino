@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decide } from "../src/decide.js";
 import { delayOf } from "../src/evaluate.js";
+import type { RoutesSnapshot } from "../src/types.js";
 import { SCENARIOS } from "./fixtures.js";
 
 describe("decide()", () => {
@@ -30,6 +31,39 @@ describe("decide()", () => {
     const result = decide(SCENARIOS.gothardKo);
     expect(result.saturated).toBe(true);
     expect(result.verdict).toBe("attente");
+  });
+
+  describe("reason tone", () => {
+    function snapshot(tunnelMin: number, colMin: number): RoutesSnapshot {
+      return {
+        updatedAt: "2026-01-01T00:00:00Z",
+        direction: "italie",
+        tunnel: { state: "go", baseMin: 8, totalMin: tunnelMin },
+        col: { state: "go", baseMin: 34, totalMin: colMin },
+      };
+    }
+
+    it("uses balanced wording when the tunnel wins by a small margin", () => {
+      const result = decide(snapshot(41, 48)); // 7 min gap
+      expect(result.verdict).toBe("tunnel");
+      expect(result.reason).toBe("Le tunnel est un peu plus rapide (7 min). Le col reste une belle option, gratuite et panoramique.");
+    });
+
+    it("uses balanced wording when the col wins by a small margin", () => {
+      const result = decide(snapshot(48, 41)); // 7 min gap
+      expect(result.verdict).toBe("col");
+      expect(result.reason).toBe("Le col est un peu plus rapide (7 min). Le tunnel reste une option fiable, mais payante.");
+    });
+
+    it("keeps the categorical wording once the gap exceeds the close-gap threshold", () => {
+      const tunnelWins = decide(snapshot(30, 50)); // 20 min gap
+      expect(tunnelWins.verdict).toBe("tunnel");
+      expect(tunnelWins.reason).toBe("Le tunnel reste le plus rapide (30 min). Le col n'apporte rien.");
+
+      const colWins = decide(snapshot(50, 30)); // 20 min gap
+      expect(colWins.verdict).toBe("col");
+      expect(colWins.reason).toBe("Bouchon au tunnel. Le col est plus court aujourd'hui : 30 contre 50 min.");
+    });
   });
 });
 

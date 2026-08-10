@@ -1,3 +1,4 @@
+import { CLOSE_GAP_THRESHOLD_MIN } from "./constants.js";
 import type { DecideResult, RoutesSnapshot } from "./types.js";
 
 /**
@@ -44,19 +45,34 @@ export function decide(snapshot: RoutesSnapshot): DecideResult {
   const best = options[0];
 
   if (best.route === "tunnel") {
-    return {
-      verdict: "tunnel",
-      saturated,
-      reason: colBlocked
-        ? "Le tunnel est ouvert et fluide ; le col est fermé de toute façon."
-        : `Le tunnel reste le plus rapide (${tunnel.totalMin} min). Le col n'apporte rien.`,
-    };
+    let reason: string;
+    if (colBlocked) {
+      reason = "Le tunnel est ouvert et fluide ; le col est fermé de toute façon.";
+    } else if (col.totalMin != null) {
+      // best.route === "tunnel" guarantees tunnel.totalMin != null and <= col.totalMin.
+      const gap = col.totalMin - tunnel.totalMin!;
+      reason =
+        gap <= CLOSE_GAP_THRESHOLD_MIN
+          ? `Le tunnel est un peu plus rapide (${gap} min). Le col reste une belle option, gratuite et panoramique.`
+          : `Le tunnel reste le plus rapide (${tunnel.totalMin} min). Le col n'apporte rien.`;
+    } else {
+      reason = `Le tunnel reste le plus rapide (${tunnel.totalMin} min). Le col n'apporte rien.`;
+    }
+    return { verdict: "tunnel", saturated, reason };
   }
-  return {
-    verdict: "col",
-    saturated,
-    reason: tunnelBlocked
-      ? `Tunnel fermé. Le col est ouvert et te fait passer en ${col.totalMin} min.`
-      : `Bouchon au tunnel. Le col est plus court aujourd'hui : ${col.totalMin} contre ${tunnel.totalMin} min.`,
-  };
+
+  let reason: string;
+  if (tunnelBlocked) {
+    reason = `Tunnel fermé. Le col est ouvert et te fait passer en ${col.totalMin} min.`;
+  } else if (tunnel.totalMin != null) {
+    // best.route === "col" guarantees col.totalMin != null and <= tunnel.totalMin.
+    const gap = tunnel.totalMin - col.totalMin!;
+    reason =
+      gap <= CLOSE_GAP_THRESHOLD_MIN
+        ? `Le col est un peu plus rapide (${gap} min). Le tunnel reste une option fiable, mais payante.`
+        : `Bouchon au tunnel. Le col est plus court aujourd'hui : ${col.totalMin} contre ${tunnel.totalMin} min.`;
+  } else {
+    reason = `Bouchon au tunnel. Le col est plus court aujourd'hui : ${col.totalMin} contre ${tunnel.totalMin} min.`;
+  }
+  return { verdict: "col", saturated, reason };
 }
