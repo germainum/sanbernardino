@@ -39,8 +39,22 @@ interface LatLng {
   longitude: number;
 }
 
-// v1 default destinations per prompt-implementation-san-bernardino.md §3.2/§9.5:
-// Coire (Chur) <-> Bellinzone. Free-text origin/destination is v1.1.
+// Local crossing endpoints (2026-08-10 revision — see reference_san_bernardino_supabase.md):
+// bracket just the San Bernardino tunnel/pass itself, not the full Coire<->Bellinzone
+// corridor. The original full-corridor endpoints made tunnel/col totals ~100+ min — real,
+// but ~90 min of that is shared highway driving identical for both routes, burying the
+// actual local delta and reading as flatly wrong to anyone comparing "tunnel vs col".
+// Hinterrhein is the last village before the crossing on the Coire side; Mesocco is south
+// of where the tunnel/col roads reconverge, before the corridor continues toward Bellinzona.
+const HINTERRHEIN: LatLng = { latitude: 46.6178, longitude: 9.2072 };
+const MESOCCO: LatLng = { latitude: 46.3733, longitude: 9.2367 };
+
+// Full-corridor endpoints — kept only for the Gothard comparison. Gothard is a genuine
+// alternative solely for a real, longer trip (detouring ~100km to skip a 20min local
+// crossing never makes sense), so scoping it to the local pair would be meaningless; it
+// still shares the same "assumes a Ticino-bound destination" limitation this had before
+// (prompt-implementation-san-bernardino.md §5 rule 3 — no real destination input exists
+// yet, that's v1.1), unchanged from prior behavior.
 const CHUR: LatLng = { latitude: 46.8508, longitude: 9.532 };
 const BELLINZONA: LatLng = { latitude: 46.1944, longitude: 9.0175 };
 
@@ -51,16 +65,20 @@ const BELLINZONA: LatLng = { latitude: 46.1944, longitude: 9.0175 };
 //   tunnel or the Gotthard corridor — an unambiguous "force the col" waypoint.
 // - Airolo (south portal town of the Gotthard road tunnel, A2): forces the Gotthard detour
 //   corridor instead of the San Bernardino axis.
-// - Tunnel needs no forcing waypoint: San Bernardino is the shorter of Chur<->Bellinzona's
-//   two year-round routes, so it's what computeRoutes returns by default when open — exactly
-//   the assumption this app's whole verdict logic (tunnel is the default recommendation)
+// - Tunnel needs no forcing waypoint: San Bernardino is the shorter of the two year-round
+//   local options, so it's what computeRoutes returns by default when open — exactly the
+//   assumption this app's whole verdict logic (tunnel is the default recommendation)
 //   already rests on.
 const SAN_BERNARDINO_PASS: LatLng = { latitude: 46.4699, longitude: 9.1783 };
 const GOTTHARD_TUNNEL_SOUTH: LatLng = { latitude: 46.5286, longitude: 8.6106 };
 
 const ROUTES_ENDPOINT = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
-function endpointsFor(direction: Direction): { origin: LatLng; destination: LatLng } {
+function localEndpointsFor(direction: Direction): { origin: LatLng; destination: LatLng } {
+  return direction === "italie" ? { origin: HINTERRHEIN, destination: MESOCCO } : { origin: MESOCCO, destination: HINTERRHEIN };
+}
+
+function corridorEndpointsFor(direction: Direction): { origin: LatLng; destination: LatLng } {
   return direction === "italie" ? { origin: CHUR, destination: BELLINZONA } : { origin: BELLINZONA, destination: CHUR };
 }
 
@@ -72,11 +90,11 @@ function parseDurationMinutes(duration: unknown): number | null {
 
 /**
  * Phase 11 fill-in. Wires Google Routes `computeRoutes` (TRAFFIC_AWARE, departureTime=now)
- * per prompt-implementation-san-bernardino.md §3.2, computing tunnel/col/gothard travel
- * times toward the app's default destination pair (Coire/Bellinzone — see endpointsFor()).
- * Each route is requested independently so one closed/impassable leg (e.g. the col in
- * winter, which Google may report as ZERO_RESULTS/no route) degrades to `null` for that
- * route only, instead of failing the whole poll.
+ * per prompt-implementation-san-bernardino.md §3.2, computing tunnel/col travel times over
+ * the local crossing (see localEndpointsFor()) and gothard over the full regional corridor
+ * (see corridorEndpointsFor()). Each route is requested independently so one closed/
+ * impassable leg (e.g. the col in winter, which Google may report as ZERO_RESULTS/no route)
+ * degrades to `null` for that route only, instead of failing the whole poll.
  */
 export class RealRoutesProvider implements RoutesProvider {
   private readonly config: RoutesHttpConfig;
@@ -88,10 +106,9 @@ export class RealRoutesProvider implements RoutesProvider {
   /**
    * Requests both the live (traffic-aware) duration and Google's `staticDuration` (its
    * traffic-free baseline for the same route) in one call. `staticDuration`, not
-   * constants.BASE, is what normalize() uses as this route's baseMin — BASE's short figures
-   * (8/34/42 min) are calibrated for the local crossing alone and would make
-   * delay = total - base meaningless once totalMin is a real end-to-end trip (~100+ min for
-   * Coire<->Bellinzone), see types.ts RoutesRaw.
+   * constants.BASE, is what normalize() uses as this route's baseMin — real Google-measured
+   * free-flow times vary somewhat from BASE's idealized 8/34/42 figures even for the local
+   * crossing, and would be way off for gothard's full-corridor scale, see types.ts RoutesRaw.
    */
   private async computeMinutes(origin: LatLng, destination: LatLng, via?: LatLng): Promise<{ totalMin: number | null; baseMin: number | null }> {
     const body: Record<string, unknown> = {
@@ -125,11 +142,12 @@ export class RealRoutesProvider implements RoutesProvider {
   }
 
   async fetchGoogleRoutes(direction: Direction): Promise<RoutesRaw> {
-    const { origin, destination } = endpointsFor(direction);
+    const local = localEndpointsFor(direction);
+    const corridor = corridorEndpointsFor(direction);
     const [tunnel, col, gothard] = await Promise.all([
-      this.computeMinutes(origin, destination),
-      this.computeMinutes(origin, destination, SAN_BERNARDINO_PASS),
-      this.computeMinutes(origin, destination, GOTTHARD_TUNNEL_SOUTH),
+      this.computeMinutes(local.origin, local.destination),
+      this.computeMinutes(local.origin, local.destination, SAN_BERNARDINO_PASS),
+      this.computeMinutes(corridor.origin, corridor.destination, GOTTHARD_TUNNEL_SOUTH),
     ]);
 
     const bestA13 = [tunnel.totalMin, col.totalMin].filter((m): m is number => m != null);

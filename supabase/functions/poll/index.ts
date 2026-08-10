@@ -242,33 +242,44 @@ Deno.serve(async (req) => {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  let body = {};
   try {
-    body = await req.json();
-  } catch {
-    // empty/absent body is fine — real cron invocations won't send one
+    let body = {};
+    try {
+      body = await req.json();
+    } catch {
+      // empty/absent body is fine — real cron invocations won't send one
+    }
+
+    const db = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
+    const providerEnv = buildProviderEnv(body, db);
+
+    const rawServiceAccount = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
+    const firebaseServiceAccount = rawServiceAccount ? JSON.parse(rawServiceAccount) : null;
+
+    const viasuisseProvider = getViasuisseProvider(providerEnv);
+    const viasuisseRaw = await viasuisseProvider.fetchViasuisse();
+    const capturedAt = new Date().toISOString();
+
+    const perDirection = [];
+    for (const direction of DIRECTIONS) {
+      perDirection.push(await processDirection(db, direction, viasuisseRaw, providerEnv, capturedAt, firebaseServiceAccount));
+    }
+
+    await db.from("delay_history").delete().lt("captured_at", daysAgo(RETENTION_DAYS.delay_history));
+    await db.from("snapshots").delete().lt("captured_at", daysAgo(RETENTION_DAYS.snapshots)).eq("is_baseline", false);
+    await db.from("notification_log").delete().lt("sent_at", daysAgo(RETENTION_DAYS.notification_log));
+
+    return new Response(JSON.stringify({ ok: true, capturedAt, results: perDirection }), {
+      headers: { "content-type": "application/json" },
+    });
+  } catch (err) {
+    // Previously any exception anywhere in this handler propagated uncaught, and the Edge
+    // Runtime's own fallback returned a bare "Internal Server Error" with zero diagnostic
+    // info — undiagnosable from outside without digging through analytics log queries.
+    console.error("[poll] unhandled error", err);
+    return new Response(JSON.stringify({ ok: false, error: err instanceof Error ? err.message : String(err) }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
   }
-
-  const db = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
-  const providerEnv = buildProviderEnv(body, db);
-
-  const rawServiceAccount = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
-  const firebaseServiceAccount = rawServiceAccount ? JSON.parse(rawServiceAccount) : null;
-
-  const viasuisseProvider = getViasuisseProvider(providerEnv);
-  const viasuisseRaw = await viasuisseProvider.fetchViasuisse();
-  const capturedAt = new Date().toISOString();
-
-  const perDirection = [];
-  for (const direction of DIRECTIONS) {
-    perDirection.push(await processDirection(db, direction, viasuisseRaw, providerEnv, capturedAt, firebaseServiceAccount));
-  }
-
-  await db.from("delay_history").delete().lt("captured_at", daysAgo(RETENTION_DAYS.delay_history));
-  await db.from("snapshots").delete().lt("captured_at", daysAgo(RETENTION_DAYS.snapshots)).eq("is_baseline", false);
-  await db.from("notification_log").delete().lt("sent_at", daysAgo(RETENTION_DAYS.notification_log));
-
-  return new Response(JSON.stringify({ ok: true, capturedAt, results: perDirection }), {
-    headers: { "content-type": "application/json" },
-  });
 });
