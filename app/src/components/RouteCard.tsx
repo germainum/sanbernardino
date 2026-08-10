@@ -5,12 +5,14 @@ interface RouteCardProps {
   name: string;
   meta: string;
   data: RouteInfo;
+  delay: number | null;
   thumbLabel: string;
   recommended: boolean;
 }
 
-export function RouteCard({ name, meta, data, thumbLabel, recommended }: RouteCardProps) {
+export function RouteCard({ name, meta, data, delay, thumbLabel, recommended }: RouteCardProps) {
   const st = STATE[data.state];
+  const delayColor = delay == null ? C.muted : delay === 0 ? C.limeDeep : delay < 40 ? C.amber : C.coral;
   return (
     <div
       style={{
@@ -36,10 +38,16 @@ export function RouteCard({ name, meta, data, thumbLabel, recommended }: RouteCa
         </div>
       </div>
       <div style={{ textAlign: "right", paddingRight: 6 }}>
-        {data.totalMin != null ? (
+        {delay != null ? (
           <>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, lineHeight: 1 }}>{data.totalMin}</div>
-            <div style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>min</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: delayColor, lineHeight: 1 }}>
+              {delay === 0 ? "0" : `+${delay}`}
+              <span style={{ fontSize: 12, fontWeight: 700 }}> min</span>
+            </div>
+            <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600, marginTop: 2 }}>de retard</div>
+            {data.totalMin != null && (
+              <div style={{ fontSize: 10.5, color: C.muted, marginTop: 3 }}>trajet complet · {data.totalMin} min</div>
+            )}
           </>
         ) : (
           <div style={{ fontSize: 15, color: C.muted }}>—</div>
