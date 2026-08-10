@@ -10,7 +10,7 @@ import {
 } from "@san-bernardino/core";
 import { DATA_SOURCE } from "../lib/env";
 import { fetchHistory, fetchState, toEvaluatedSnapshot } from "../lib/api";
-import { formatUpdatedLabel } from "../lib/format";
+import { formatUpdatedLabel, isStale } from "../lib/format";
 import { listenForDeeplinks } from "../push/register";
 
 export type { ScenarioKey };
@@ -73,7 +73,12 @@ export function useSnapshot() {
       try {
         const state = await fetchState(direction, controller.signal);
         const evaluated = toEvaluatedSnapshot(state);
-        const primaryRoute = evaluated.snapshot.tunnel.totalMin != null ? "tunnel" : "col";
+        const primaryRoute =
+          evaluated.verdict === "tunnel" || evaluated.verdict === "col"
+            ? evaluated.verdict
+            : evaluated.snapshot.tunnel.totalMin != null
+              ? "tunnel"
+              : "col";
         const history = await fetchHistory(direction, primaryRoute, 3, controller.signal);
         if (cancelled) return;
         const fresh: LastKnown = { evaluated, history };
@@ -114,6 +119,7 @@ export function useSnapshot() {
       history: SCENARIO_HISTORY[scenarioKey],
       updatedLabel: "Mis à jour il y a 2 min",
       source: "OFROU (simulé)",
+      stale: false,
     };
   }
 
@@ -129,5 +135,6 @@ export function useSnapshot() {
     history: apiData?.history ?? [],
     updatedLabel: apiData ? formatUpdatedLabel(apiData.evaluated.snapshot.updatedAt) : "",
     source: isOffline ? "Hors ligne · dernier état connu" : "OFROU",
+    stale: apiData ? isStale(apiData.evaluated.snapshot.updatedAt) : false,
   };
 }

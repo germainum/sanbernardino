@@ -12,6 +12,10 @@ interface RouteCardProps {
 
 export function RouteCard({ name, meta, data, delay, thumbLabel, recommended }: RouteCardProps) {
   const st = STATE[data.state];
+  // Tunnel/col share ~95% of the same Google Routes trip, so a nonzero numeric delay often
+  // just reflects shared-highway traffic, not a problem specific to this crossing. Only
+  // frame it as "de retard" when the real road-status feed (state) confirms a local issue.
+  const localIssue = data.state !== "go";
   const delayColor = delay == null ? C.muted : delay === 0 ? C.limeDeep : delay < 40 ? C.amber : C.coral;
   return (
     <div
@@ -38,16 +42,24 @@ export function RouteCard({ name, meta, data, delay, thumbLabel, recommended }: 
         </div>
       </div>
       <div style={{ textAlign: "right", paddingRight: 6 }}>
-        {delay != null ? (
+        {delay != null && localIssue ? (
           <>
             <div style={{ fontSize: 22, fontWeight: 800, color: delayColor, lineHeight: 1 }}>
-              {delay === 0 ? "0" : `+${delay}`}
+              {`+${delay}`}
               <span style={{ fontSize: 12, fontWeight: 700 }}> min</span>
             </div>
             <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600, marginTop: 2 }}>de retard</div>
             {data.totalMin != null && (
               <div style={{ fontSize: 10.5, color: C.muted, marginTop: 3 }}>trajet complet · {data.totalMin} min</div>
             )}
+          </>
+        ) : data.totalMin != null ? (
+          <>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, lineHeight: 1 }}>
+              {data.totalMin}
+              <span style={{ fontSize: 12, fontWeight: 700 }}> min</span>
+            </div>
+            <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600, marginTop: 2 }}>trajet complet</div>
           </>
         ) : (
           <div style={{ fontSize: 15, color: C.muted }}>—</div>

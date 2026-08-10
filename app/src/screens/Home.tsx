@@ -1,6 +1,8 @@
+import { deriveColStatus } from "@san-bernardino/core";
 import { useSnapshot } from "../hooks/useSnapshot";
 import { C } from "../theme";
 import { DirectionSwitch } from "../components/DirectionSwitch";
+import { ColStatusBadge } from "../components/ColStatusBadge";
 import { VerdictHero } from "../components/VerdictHero";
 import { DelayHeadline } from "../components/DelayHeadline";
 import { AxisMap } from "../components/AxisMap";
@@ -16,7 +18,7 @@ interface HomeProps {
 }
 
 export function Home({ onOpenSettings }: HomeProps) {
-  const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, history, updatedLabel, source } =
+  const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, history, updatedLabel, source, stale } =
     useSnapshot();
 
   if (status === "loading" || !snapshot || !evaluated) {
@@ -26,7 +28,12 @@ export function Home({ onOpenSettings }: HomeProps) {
   const showGothard = !!snapshot.gothard && evaluated.saturated;
   const gothardRecommended = evaluated.verdict === "gothard";
 
-  const primaryRoute = snapshot.tunnel.totalMin != null ? "tunnel" : "col";
+  const primaryRoute: "tunnel" | "col" =
+    evaluated.verdict === "tunnel" || evaluated.verdict === "col"
+      ? evaluated.verdict
+      : snapshot.tunnel.totalMin != null
+        ? "tunnel"
+        : "col";
   const primaryDelay = evaluated.delays[primaryRoute] ?? null;
 
   const rows: BreakdownRow[] = [
@@ -77,9 +84,19 @@ export function Home({ onOpenSettings }: HomeProps) {
 
         <DirectionSwitch direction={direction} onChange={setDirection} />
 
+        <ColStatusBadge status={snapshot.col.colStatus ?? deriveColStatus(snapshot.col.state)} detail={snapshot.col.detail} />
+
         <VerdictHero direction={direction} verdict={evaluated.verdict} reason={evaluated.reason} />
 
-        <DelayHeadline route={primaryRoute} delay={primaryDelay} />
+        <DelayHeadline
+          route={primaryRoute}
+          state={snapshot[primaryRoute].state}
+          delay={primaryDelay}
+          totalMin={snapshot[primaryRoute].totalMin}
+          updatedLabel={updatedLabel}
+          source={source}
+          stale={stale}
+        />
 
         <AxisMap evaluated={evaluated} />
 
@@ -93,12 +110,11 @@ export function Home({ onOpenSettings }: HomeProps) {
         <Breakdown rows={rows} />
         <HistoryGraph history={history} routeLabel={primaryRoute === "tunnel" ? "Tunnel" : "Col"} />
 
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.muted, fontWeight: 600, padding: "0 4px", margin: "4px 0 24px" }}>
-          <span>● {updatedLabel}</span>
-          <span>{source}</span>
-        </div>
-
-        {scenarioKey && setScenarioKey && <ScenarioSwitcher value={scenarioKey} onChange={setScenarioKey} />}
+        {scenarioKey && setScenarioKey && (
+          <div style={{ marginTop: 20 }}>
+            <ScenarioSwitcher value={scenarioKey} onChange={setScenarioKey} />
+          </div>
+        )}
       </div>
     </div>
   );

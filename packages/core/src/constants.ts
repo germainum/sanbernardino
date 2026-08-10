@@ -17,6 +17,12 @@ export const JAM_THRESHOLDS_MIN = [20, 40];
 /** Delay below which a route is considered "cleared" again, per fonctionnalites-natives-san-bernardino.md §7. */
 export const CLEARED_THRESHOLD_MIN = 10;
 
+/** Data older than this is flagged stale on the delay headline card. */
+export const STALE_DATA_THRESHOLD_MIN = 15;
+
+/** Below this gap between tunnel/col totals, decide()'s reason text stays balanced instead of directive. */
+export const CLOSE_GAP_THRESHOLD_MIN = 15;
+
 /** Cooldowns per event type (minutes), per backend-san-bernardino.md §3.2 and fonctionnalites-natives §5. */
 export const COOLDOWN_MIN: Record<string, number> = {
   verdict: 15,

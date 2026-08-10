@@ -3,6 +3,14 @@ export type RouteKey = "tunnel" | "col" | "gothard";
 export type Direction = "suisse" | "italie";
 export type Verdict = "tunnel" | "col" | "gothard" | "attente";
 
+/**
+ * Dedicated open/closed/restricted signal for the col, distinct from the generic
+ * `RouteState` (go/caution/stop) which mixes "closed" with "just jammed". Optional because
+ * no live provider sets it yet — normalize() derives a fallback from `state` until a real
+ * feed (e.g. a richer ASTRA classification) supplies it directly.
+ */
+export type ColStatus = "open" | "closed" | "restricted";
+
 export interface RouteInfo {
   state: RouteState;
   /** Reference free-flow time in minutes for this route. */
@@ -13,6 +21,8 @@ export interface RouteInfo {
   seasonal?: boolean;
   /** Extra minutes the Gothard detour adds versus a direct A13 crossing. */
   detourMin?: number;
+  /** Col only. See ColStatus. */
+  colStatus?: ColStatus;
 }
 
 export interface RoutesSnapshot {
@@ -62,7 +72,7 @@ export interface DetectedEvent {
 /** Raw road-status payload as returned by the Viasuisse provider, before normalization. */
 export interface ViasuisseRaw {
   tunnel: { state: RouteState; detail?: string };
-  col: { state: RouteState; detail?: string; seasonal?: boolean };
+  col: { state: RouteState; detail?: string; seasonal?: boolean; colStatus?: ColStatus };
   gothard?: { state: RouteState; detail?: string };
 }
 
