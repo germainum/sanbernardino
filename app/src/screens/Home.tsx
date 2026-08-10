@@ -17,6 +17,12 @@ interface HomeProps {
   onOpenSettings: () => void;
 }
 
+/** Physical facts, not live data — feeds Breakdown's comparison row. RouteCard's `meta` prop keeps its own prose version. */
+const ROUTE_META = {
+  tunnel: { cost: "vignette" as const, distanceKm: 6.6, altitudeM: null },
+  col: { cost: "gratuit" as const, distanceKm: null, altitudeM: 2065 },
+};
+
 export function Home({ onOpenSettings }: HomeProps) {
   const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, history, updatedLabel, source, stale } =
     useSnapshot();
@@ -37,10 +43,38 @@ export function Home({ onOpenSettings }: HomeProps) {
   const primaryDelay = evaluated.delays[primaryRoute] ?? null;
 
   const rows: BreakdownRow[] = [
-    { name: "Tunnel", base: snapshot.tunnel.baseMin, delay: evaluated.delays.tunnel ?? null, total: snapshot.tunnel.totalMin, recommended: evaluated.verdict === "tunnel" },
-    { name: "Col", base: snapshot.col.baseMin, delay: evaluated.delays.col ?? null, total: snapshot.col.totalMin, recommended: evaluated.verdict === "col" },
+    {
+      name: "Tunnel",
+      base: snapshot.tunnel.baseMin,
+      delay: evaluated.delays.tunnel ?? null,
+      total: snapshot.tunnel.totalMin,
+      recommended: evaluated.verdict === "tunnel",
+      state: snapshot.tunnel.state,
+      detail: snapshot.tunnel.detail,
+      ...ROUTE_META.tunnel,
+    },
+    {
+      name: "Col",
+      base: snapshot.col.baseMin,
+      delay: evaluated.delays.col ?? null,
+      total: snapshot.col.totalMin,
+      recommended: evaluated.verdict === "col",
+      state: snapshot.col.state,
+      detail: snapshot.col.detail,
+      ...ROUTE_META.col,
+    },
     ...(showGothard && snapshot.gothard
-      ? [{ name: "Gothard", base: snapshot.gothard.baseMin, delay: evaluated.delays.gothard ?? null, total: snapshot.gothard.totalMin, recommended: gothardRecommended }]
+      ? [
+          {
+            name: "Gothard",
+            base: snapshot.gothard.baseMin,
+            delay: evaluated.delays.gothard ?? null,
+            total: snapshot.gothard.totalMin,
+            recommended: gothardRecommended,
+            state: snapshot.gothard.state,
+            detail: snapshot.gothard.detail,
+          },
+        ]
       : []),
   ];
 

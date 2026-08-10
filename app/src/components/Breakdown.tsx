@@ -1,4 +1,5 @@
-import { C } from "../theme";
+import type { RouteState } from "@san-bernardino/core";
+import { C, STATE } from "../theme";
 
 export interface BreakdownRow {
   name: string;
@@ -6,6 +7,11 @@ export interface BreakdownRow {
   delay: number | null;
   total: number | null;
   recommended: boolean;
+  state: RouteState;
+  detail?: string;
+  cost?: "vignette" | "gratuit" | null;
+  distanceKm?: number | null;
+  altitudeM?: number | null;
 }
 
 export function Breakdown({ rows }: { rows: BreakdownRow[] }) {
@@ -17,27 +23,45 @@ export function Breakdown({ rows }: { rows: BreakdownRow[] }) {
         <span style={{ textAlign: "right" }}>RETARD</span>
         <span style={{ textAlign: "right" }}>TOTAL</span>
       </div>
-      {rows.map((r) => (
-        <div
-          key={r.name}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.1fr 1fr 1fr 1fr",
-            alignItems: "center",
-            padding: "11px 12px",
-            borderRadius: 14,
-            background: r.recommended ? "rgba(143,203,46,0.10)" : "transparent",
-          }}
-        >
-          <span style={{ fontSize: 14, fontWeight: 700, color: C.ink }}>{r.name}</span>
-          <span style={{ textAlign: "right", fontSize: 13, color: C.muted, fontWeight: 600 }}>{r.base} min</span>
-          <span style={{ textAlign: "right", fontSize: 13, fontWeight: 700, color: r.delay ? C.coral : C.muted }}>
-            {r.delay == null ? "—" : r.delay ? "+" + r.delay : "0"}
-            {r.delay == null ? "" : " min"}
-          </span>
-          <span style={{ textAlign: "right", fontSize: 14, fontWeight: 800, color: C.ink }}>{r.total == null ? "—" : r.total + " min"}</span>
-        </div>
-      ))}
+      {rows.map((r) => {
+        const st = STATE[r.state];
+        const hasMeta = r.cost != null || r.distanceKm != null || r.altitudeM != null || r.detail;
+        return (
+          <div
+            key={r.name}
+            style={{
+              padding: "11px 12px",
+              borderRadius: 14,
+              background: r.recommended ? "rgba(143,203,46,0.10)" : "transparent",
+            }}
+          >
+            <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr 1fr", alignItems: "center" }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.ink }}>{r.name}</span>
+              <span style={{ textAlign: "right", fontSize: 13, color: C.muted, fontWeight: 600 }}>{r.base} min</span>
+              <span style={{ textAlign: "right", fontSize: 13, fontWeight: 700, color: r.delay ? C.coral : C.muted }}>
+                {r.delay == null ? "—" : r.delay ? "+" + r.delay : "0"}
+                {r.delay == null ? "" : " min"}
+              </span>
+              <span style={{ textAlign: "right", fontSize: 14, fontWeight: 800, color: C.ink }}>{r.total == null ? "—" : r.total + " min"}</span>
+            </div>
+            {hasMeta && (
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, marginTop: 6 }}>
+                {r.cost && (
+                  <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>{r.cost === "vignette" ? "🎫 Vignette" : "🆓 Gratuit"}</span>
+                )}
+                {r.distanceKm != null && <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>📏 {r.distanceKm} km</span>}
+                {r.altitudeM != null && <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>⛰ {r.altitudeM} m</span>}
+                {r.detail && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: st.color, fontWeight: 600 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: st.color }} />
+                    {r.detail}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
