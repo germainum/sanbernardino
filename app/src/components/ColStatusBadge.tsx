@@ -32,7 +32,7 @@ export function ColStatusBadge({ status, detail }: ColStatusBadgeProps) {
         marginBottom: 16,
       }}
     >
-      <span style={{ width: 9, height: 9, borderRadius: "50%", background: st.color, flexShrink: 0 }} />
+      <span style={{ width: 9, height: 9, borderRadius: 2, background: st.color, flexShrink: 0 }} />
       <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
         <span style={{ fontSize: 13, fontWeight: 800, color: st.color }}>{meta.label}</span>
         {detail && <span style={{ fontSize: 11.5, color: C.muted }}>{detail}</span>}

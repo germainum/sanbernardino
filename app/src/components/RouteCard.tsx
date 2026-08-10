@@ -70,7 +70,8 @@ export function RouteCard({ name, meta, data, delay, thumbLabel, recommended }: 
         </div>
         <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>{meta}</div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "3px 10px", borderRadius: 999, background: st.soft }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: st.color }} />
+          {/* Square, not round — a circular dot reads as a toggle knob next to interactive-looking pills. */}
+          <span style={{ width: 7, height: 7, borderRadius: 2, background: st.color }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: st.color }}>{data.detail}</span>
         </div>
       </div>
