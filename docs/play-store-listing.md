@@ -70,8 +70,14 @@ Reflects what's *actually* collected today — update this section again once re
 - **Can users request data deletion?** Yes — uninstalling clears future processing; the privacy policy's contact address handles manual requests for anything already stored.
 - **Privacy policy URL**: see the published artifact (San Bernardino — Politique de confidentialité).
 
-## Screenshots / graphics checklist (not yet produced)
+## Screenshots
 
-- Phone screenshots (min 2, 16:9 or 9:16): Home screen (both directions), Settings screen, history graph.
+Captured 2026-08-10 against the real production build (real Google Routes + real OFROU road status, not mock data) at 1080×2400 — meets Play's phone screenshot requirements as-is:
+
+- `screenshots/home-italie.png` — home screen, "vers l'Italie" direction, tunnel recommended
+- `screenshots/home-suisse.png` — home screen, "vers la Suisse" direction
+
+Still needed (not yet produced):
+- A Settings screenshot — the notifications permission flow can't be exercised headlessly (no real Capacitor push bridge in a browser), so capture this one directly on a device instead.
 - Feature graphic: 1024×500px.
 - App icon: 512×512px (already exists as the Capacitor launcher icon — export at the required resolution).

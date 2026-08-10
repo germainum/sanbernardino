@@ -113,7 +113,7 @@ export function useSnapshot() {
       evaluated: mockEvaluated,
       history: SCENARIO_HISTORY[scenarioKey],
       updatedLabel: "Mis à jour il y a 2 min",
-      source: "Viasuisse (simulé)",
+      source: "OFROU (simulé)",
     };
   }
 
@@ -128,6 +128,6 @@ export function useSnapshot() {
     evaluated: apiData?.evaluated,
     history: apiData?.history ?? [],
     updatedLabel: apiData ? formatUpdatedLabel(apiData.evaluated.snapshot.updatedAt) : "",
-    source: isOffline ? "Hors ligne · dernier état connu" : "Viasuisse",
+    source: isOffline ? "Hors ligne · dernier état connu" : "OFROU",
   };
 }
