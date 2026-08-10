@@ -254,7 +254,17 @@ Deno.serve(async (req) => {
     const providerEnv = buildProviderEnv(body, db);
 
     const rawServiceAccount = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
-    const firebaseServiceAccount = rawServiceAccount ? JSON.parse(rawServiceAccount) : null;
+    let firebaseServiceAccount = null;
+    if (rawServiceAccount) {
+      try {
+        firebaseServiceAccount = JSON.parse(rawServiceAccount);
+      } catch (err) {
+        // A malformed secret must degrade to "no push notifications" (same as unset), not
+        // crash the whole poll — this took down snapshot writing entirely for hours in
+        // production before this guard existed.
+        console.error("[poll] FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON, disabling push for this run", err);
+      }
+    }
 
     const viasuisseProvider = getViasuisseProvider(providerEnv);
     const viasuisseRaw = await viasuisseProvider.fetchViasuisse();
