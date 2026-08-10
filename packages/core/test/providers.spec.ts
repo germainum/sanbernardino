@@ -73,17 +73,13 @@ describe("provider contract", () => {
   });
 });
 
-describe("RealViasuisseProvider (Phase 11 stub — not implemented yet)", () => {
-  it("throws a clear not-implemented error instead of silently returning fake data", async () => {
+describe("RealViasuisseProvider", () => {
+  it("delegates to the injected cache reader", async () => {
     const { RealViasuisseProvider } = await import("../src/providers/http.js");
-    const viasuisse = new RealViasuisseProvider({
-      apiBase: "https://example.test",
-      tokenUrl: "https://example.test/token",
-      clientId: "id",
-      clientSecret: "secret",
-    });
+    const cached = { tunnel: { state: "go" }, col: { state: "go", seasonal: true }, gothard: { state: "caution", detail: "Chantier" } };
+    const viasuisse = new RealViasuisseProvider({ readCache: async () => cached });
 
-    await expect(viasuisse.fetchViasuisse()).rejects.toThrow(/not implemented/i);
+    await expect(viasuisse.fetchViasuisse()).resolves.toBe(cached);
   });
 });
 

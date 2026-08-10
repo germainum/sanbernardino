@@ -106,7 +106,14 @@ function liveOrMock(value) {
   return value === "live" ? "live" : value === "mock" ? "mock" : undefined;
 }
 
-function buildProviderEnv(body) {
+async function readCachedRoadStatus(db) {
+  const { data, error } = await db.from("road_status_cache").select("raw, fetched_at").eq("id", 1).maybeSingle();
+  if (error) throw new Error(`road_status_cache read failed: ${error.message}`);
+  if (!data) throw new Error("road_status_cache is empty — has refresh-road-status run yet?");
+  return data.raw;
+}
+
+function buildProviderEnv(body, db) {
   return {
     DATA_SOURCE: Deno.env.get("DATA_SOURCE") === "live" ? "live" : "mock",
     // Per-provider overrides let Phase 11 sub-tasks (real Viasuisse, real Routes) ship
@@ -114,10 +121,7 @@ function buildProviderEnv(body) {
     VIASUISSE_DATA_SOURCE: liveOrMock(Deno.env.get("VIASUISSE_DATA_SOURCE")),
     ROUTES_DATA_SOURCE: liveOrMock(Deno.env.get("ROUTES_DATA_SOURCE")),
     MOCK_SCENARIO: body.scenario,
-    VIASUISSE_API_BASE: Deno.env.get("VIASUISSE_API_BASE"),
-    VIASUISSE_TOKEN_URL: Deno.env.get("VIASUISSE_TOKEN_URL"),
-    VIASUISSE_CLIENT_ID: Deno.env.get("VIASUISSE_CLIENT_ID"),
-    VIASUISSE_CLIENT_SECRET: Deno.env.get("VIASUISSE_CLIENT_SECRET"),
+    VIASUISSE_READ_CACHE: () => readCachedRoadStatus(db),
     GOOGLE_ROUTES_API_KEY: Deno.env.get("GOOGLE_ROUTES_API_KEY"),
   };
 }
@@ -239,7 +243,7 @@ Deno.serve(async (req) => {
   }
 
   const db = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
-  const providerEnv = buildProviderEnv(body);
+  const providerEnv = buildProviderEnv(body, db);
 
   const viasuisseProvider = getViasuisseProvider(providerEnv);
   const viasuisseRaw = await viasuisseProvider.fetchViasuisse();

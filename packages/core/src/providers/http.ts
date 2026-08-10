@@ -2,19 +2,20 @@ import type { Direction, RoutesRaw, ViasuisseRaw } from "../types.js";
 import type { RoutesProvider, ViasuisseProvider } from "./types.js";
 
 export interface ViasuisseHttpConfig {
-  apiBase: string;
-  tokenUrl: string;
-  clientId: string;
-  clientSecret: string;
+  /**
+   * Reads the latest parsed road-status snapshot. Injected rather than fetched here directly:
+   * the real upstream feed (ASTRA/opentransportdata.swiss's DATEX II Traffic Situations
+   * export — see astraDatex2.ts) is a ~23MB national dump with no server-side filter, so
+   * fetching it on every 3-min poll would be hundreds of GB/month. Instead a separate,
+   * slower-cadence Edge Function (`refresh-road-status`, every ~30min) fetches + parses it
+   * via parseAstraTrafficSituations() and upserts the result into a `road_status_cache` table;
+   * this provider just reads that cache. See reference_san_bernardino_supabase.md memory for
+   * why the original Viasuisse-direct/SRG-SSR-portal auth plan (VIASUISSE_TOKEN_URL etc.)
+   * was abandoned — both access paths turned out to be dead ends.
+   */
+  readCache: () => Promise<ViasuisseRaw>;
 }
 
-/**
- * Phase 11 fill-in. Wires OAuth2 token fetch/cache + the real Viasuisse endpoint per
- * prompt-implementation-san-bernardino.md §3.1. Deriving `state` from jam length/closures
- * (per §4) belongs here, not in normalize() — see packages/core/src/normalize.ts.
- * Constructor shape already matches the env vars from §9 so wiring this in later only
- * touches this file plus the provider factory's live branch, per the plan's Phase 11 table.
- */
 export class RealViasuisseProvider implements ViasuisseProvider {
   private readonly config: ViasuisseHttpConfig;
 
@@ -23,10 +24,7 @@ export class RealViasuisseProvider implements ViasuisseProvider {
   }
 
   async fetchViasuisse(): Promise<ViasuisseRaw> {
-    throw new Error(
-      `RealViasuisseProvider is not implemented yet (Phase 11) — requires a Viasuisse API account for ${this.config.apiBase}. ` +
-        "See prompt-implementation-san-bernardino.md §3.1.",
-    );
+    return this.config.readCache();
   }
 }
 

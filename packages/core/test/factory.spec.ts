@@ -10,13 +10,7 @@ describe("provider factory", () => {
   });
 
   it("returns real providers when DATA_SOURCE=live and credentials are present", () => {
-    const viasuisse = getViasuisseProvider({
-      DATA_SOURCE: "live",
-      VIASUISSE_API_BASE: "https://example.test",
-      VIASUISSE_TOKEN_URL: "https://example.test/token",
-      VIASUISSE_CLIENT_ID: "id",
-      VIASUISSE_CLIENT_SECRET: "secret",
-    });
+    const viasuisse = getViasuisseProvider({ DATA_SOURCE: "live", VIASUISSE_READ_CACHE: async () => ({ tunnel: { state: "go" }, col: { state: "go" }, gothard: { state: "go" } }) });
     expect(viasuisse).toBeInstanceOf(RealViasuisseProvider);
 
     const routes = getRoutesProvider({ DATA_SOURCE: "live", GOOGLE_ROUTES_API_KEY: "key" });
