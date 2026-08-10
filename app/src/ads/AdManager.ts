@@ -1,5 +1,5 @@
 import { Capacitor } from "@capacitor/core";
-import { AD_TEST_IDS, canShowInterstitial } from "./placement";
+import { canShowInterstitial, getAdIds } from "./placement";
 
 let lastInterstitialAt: number | null = null;
 let isFirstScreenSinceLaunch = true;
@@ -30,7 +30,7 @@ export async function initAds(removeAds: boolean): Promise<void> {
     // than none, per addendum §6 ("Sans consentement -> pubs non personnalisées").
   }
 
-  await AdMob.initialize({ initializeForTesting: true });
+  await AdMob.initialize({ initializeForTesting: getAdIds().isTest });
   await showBanner();
 }
 
@@ -39,7 +39,7 @@ export async function showBanner(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   const { AdMob, BannerAdPosition, BannerAdSize } = await loadAdMob();
   await AdMob.showBanner({
-    adId: AD_TEST_IDS.banner,
+    adId: getAdIds().banner,
     adSize: BannerAdSize.ADAPTIVE_BANNER,
     position: BannerAdPosition.BOTTOM_CENTER,
   });
@@ -66,7 +66,7 @@ export async function maybeShowInterstitial(removeAds: boolean): Promise<void> {
   if (!canShowInterstitial(lastInterstitialAt, now, isLaunch)) return;
 
   const { AdMob } = await loadAdMob();
-  await AdMob.prepareInterstitial({ adId: AD_TEST_IDS.interstitial });
+  await AdMob.prepareInterstitial({ adId: getAdIds().interstitial });
   await AdMob.showInterstitial();
   lastInterstitialAt = now;
 }

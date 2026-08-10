@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { canShowInterstitial, INTERSTITIAL_MIN_INTERVAL_MS } from "./placement";
 
 describe("canShowInterstitial()", () => {
@@ -20,5 +20,34 @@ describe("canShowInterstitial()", () => {
   it("allows another interstitial once the cooldown has elapsed", () => {
     expect(canShowInterstitial(now - INTERSTITIAL_MIN_INTERVAL_MS, now, false)).toBe(true);
     expect(canShowInterstitial(now - INTERSTITIAL_MIN_INTERVAL_MS - 1, now, false)).toBe(true);
+  });
+});
+
+describe("getAdIds()", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  it("defaults to Google's test IDs when no real AdMob env vars are set", async () => {
+    vi.resetModules();
+    const { getAdIds, AD_TEST_IDS } = await import("./placement");
+    expect(getAdIds()).toEqual({ ...AD_TEST_IDS, isTest: true });
+  });
+
+  it("switches to the real IDs once all three env vars are set", async () => {
+    vi.stubEnv("VITE_ADMOB_APP_ID", "ca-app-pub-1~1");
+    vi.stubEnv("VITE_ADMOB_BANNER_ID", "ca-app-pub-1/2");
+    vi.stubEnv("VITE_ADMOB_INTERSTITIAL_ID", "ca-app-pub-1/3");
+    vi.resetModules();
+    const { getAdIds } = await import("./placement");
+    expect(getAdIds()).toEqual({ appId: "ca-app-pub-1~1", banner: "ca-app-pub-1/2", interstitial: "ca-app-pub-1/3", isTest: false });
+  });
+
+  it("stays on test IDs if only some of the real env vars are set", async () => {
+    vi.stubEnv("VITE_ADMOB_APP_ID", "ca-app-pub-1~1");
+    vi.resetModules();
+    const { getAdIds, AD_TEST_IDS } = await import("./placement");
+    expect(getAdIds()).toEqual({ ...AD_TEST_IDS, isTest: true });
   });
 });

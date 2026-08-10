@@ -35,13 +35,14 @@
         </provider>
 
         <!--
-          Google's public test AdMob App ID (addendum-monetisation-san-bernardino.md §2) —
-          functional for test ads without an AdMob account. Swapping in the real App ID is a
-          Phase 11 task gated on creating an AdMob account and registering this app.
+          Real AdMob App ID (san-bernardino-fd747 project). Safe to use unconditionally, even
+          in debug builds — per Google's own guidance, only the ad unit IDs and the
+          `initializeForTesting` flag (see app/src/ads/placement.ts's getAdIds()) need to
+          differ between test and production, not the App ID itself.
         -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-1451940376913858~7516560722" />
     </application>
 
     <!-- Permissions -->
