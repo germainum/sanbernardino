@@ -84,8 +84,8 @@ export function Home({ onOpenSettings }: HomeProps) {
         <AxisMap evaluated={evaluated} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-          <RouteCard name="Tunnel" meta="6,6 km · vignette" thumbLabel="TUNNEL" data={snapshot.tunnel} delay={evaluated.delays.tunnel ?? null} recommended={evaluated.verdict === "tunnel"} />
-          <RouteCard name="Col" meta="2065 m · gratuit" thumbLabel="COL" data={snapshot.col} delay={evaluated.delays.col ?? null} recommended={evaluated.verdict === "col"} />
+          <RouteCard name="Le Tunnel du San Bernardino" meta="6,6 km · vignette" thumbLabel="TUNNEL" data={snapshot.tunnel} delay={evaluated.delays.tunnel ?? null} recommended={evaluated.verdict === "tunnel"} />
+          <RouteCard name="La Route du Col du San Bernardino" meta="Passo del San Bernardino · 2065 m · gratuit" thumbLabel="COL" data={snapshot.col} delay={evaluated.delays.col ?? null} recommended={evaluated.verdict === "col"} />
         </div>
 
         {showGothard && snapshot.gothard && <GothardPanel gothard={snapshot.gothard} recommended={gothardRecommended} />}
