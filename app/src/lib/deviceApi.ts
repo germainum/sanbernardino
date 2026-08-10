@@ -10,7 +10,6 @@ export interface DevicePrefs {
   types: Record<string, boolean>;
   jam_threshold_min: number;
   quiet_hours: { from: string; to: string };
-  geo_enabled: boolean;
 }
 
 export interface DeviceRecord {

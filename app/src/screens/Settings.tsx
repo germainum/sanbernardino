@@ -24,7 +24,6 @@ const DEFAULT_PREFS: DevicePrefs = {
   types: { verdict: true, col_open: true, tunnel_closed: true, jam_threshold: true, cleared: false, restriction: true, gothard: true },
   jam_threshold_min: 20,
   quiet_hours: { from: "22:00", to: "07:00" },
-  geo_enabled: false,
 };
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -211,10 +210,6 @@ export function Settings({ onBack }: SettingsProps) {
                 </label>
               </div>
               <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>Sauf incident majeur (fermeture).</p>
-            </SectionCard>
-
-            <SectionCard title="Alertes géolocalisées">
-              <Toggle label="Me prévenir en approchant de l'axe" checked={prefs.geo_enabled} onChange={(v) => void savePrefs({ ...prefs, geo_enabled: v })} />
             </SectionCard>
 
             <SectionCard title="Trajet planifié">
