@@ -254,11 +254,17 @@ export function Settings({ onBack }: SettingsProps) {
               {tripStatus === "error" && <p style={{ fontSize: 12, color: C.coral, margin: "8px 0 0" }}>Échec — réessaie plus tard.</p>}
             </SectionCard>
 
-            {saveStatus === "error" && (
+    {saveStatus === "error" && (
               <p style={{ fontSize: 12, color: C.coral, textAlign: "center" }}>Échec de l'enregistrement — vérifie ta connexion.</p>
             )}
           </>
         )}
+
+        <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.6, margin: "24px 0 0" }}>
+          Données trafic : Office fédéral des routes (OFROU) — Traffic Data Platform.
+          <br />
+          Temps de trajet : Google Routes.
+        </p>
       </div>
     </div>
   );
