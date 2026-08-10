@@ -8,6 +8,7 @@ import {
   getRoutesProvider,
   buildPushPayload,
 } from "../../../packages/core/dist/index.js";
+import { sendFcmPush } from "../_shared/fcm.ts";
 
 /**
  * The cron job: fetch -> normalize -> archive -> detect events -> confirm persistence ->
@@ -24,9 +25,10 @@ import {
  * (and self-healing back to zero candidates if the data reverts) is what actually
  * implements the "wait for 2 consecutive identical readings" rule from the spec.
  *
- * Real push sending isn't wired yet (Phase 11 needs a Firebase project) — sends are logged
- * and recorded in notification_log so the anti-spam gates (cooldown/quiet-hours/daily-cap)
- * are exercised for real even before FCM exists.
+ * Real push sending: Android via FCM HTTP v1 (supabase/functions/_shared/fcm.ts) when the
+ * FIREBASE_SERVICE_ACCOUNT_JSON secret is set; otherwise (or for iOS, not yet built) falls
+ * back to a console.log so the anti-spam gates (cooldown/quiet-hours/daily-cap) still get
+ * exercised for real without a Firebase project.
  */
 
 const DIRECTIONS = ["suisse", "italie"];
@@ -52,7 +54,7 @@ async function confirmPersistence(db, events) {
   return { confirmed, freshlyUpserted };
 }
 
-async function fanOut(db, event) {
+async function fanOut(db, event, firebaseServiceAccount) {
   // Filtered in code rather than via PostgREST jsonb-path containment: supabase-js's
   // .contains() serializes JS arrays as Postgres array literals ({a,b}), which doesn't
   // match a jsonb column/path — it silently returns zero rows instead of erroring.
@@ -91,11 +93,16 @@ async function fanOut(db, event) {
     });
     if (suppressed) continue;
 
-    // Real APNs/FCM send is Phase 11 (see fonctionnalites-natives-san-bernardino.md §6/§8).
-    // The payload built here (title/body/deeplink) is exactly what FcmPushSender will hand
-    // to FCM once that exists — only the transport is a stub, not the content.
     const payload = buildPushPayload(event);
-    console.log(`[push:${device.platform}] -> ${device.id}`, JSON.stringify(payload));
+    if (firebaseServiceAccount && device.platform === "android") {
+      const result = await sendFcmPush(firebaseServiceAccount, device.push_token, payload);
+      if (!result.ok) console.error(`[push:fcm] send failed for device ${device.id}`, result.error);
+    } else {
+      // iOS/APNs isn't built yet (fonctionnalites-natives-san-bernardino.md §6) and this is
+      // also the fallback when no Firebase project is configured — anti-spam gates above
+      // still run for real either way, only the transport is a log line here.
+      console.log(`[push:${device.platform}] -> ${device.id}`, JSON.stringify(payload));
+    }
     await db.from("notification_log").insert({ device_id: device.id, type: event.type, dedup_key: event.key });
     sent.push(device.id);
   }
@@ -126,7 +133,7 @@ function buildProviderEnv(body, db) {
   };
 }
 
-async function processDirection(db, direction, viasuisseRaw, providerEnv, capturedAt) {
+async function processDirection(db, direction, viasuisseRaw, providerEnv, capturedAt, firebaseServiceAccount) {
   const routesProvider = getRoutesProvider(providerEnv);
   const routesRaw = await routesProvider.fetchGoogleRoutes(direction);
   const snapshot = normalize(viasuisseRaw, routesRaw, direction, capturedAt);
@@ -216,7 +223,7 @@ async function processDirection(db, direction, viasuisseRaw, providerEnv, captur
 
   const sentByEvent = {};
   for (const ev of confirmed) {
-    sentByEvent[ev.key] = await fanOut(db, ev);
+    sentByEvent[ev.key] = await fanOut(db, ev, firebaseServiceAccount);
   }
 
   return {
@@ -245,13 +252,16 @@ Deno.serve(async (req) => {
   const db = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
   const providerEnv = buildProviderEnv(body, db);
 
+  const rawServiceAccount = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
+  const firebaseServiceAccount = rawServiceAccount ? JSON.parse(rawServiceAccount) : null;
+
   const viasuisseProvider = getViasuisseProvider(providerEnv);
   const viasuisseRaw = await viasuisseProvider.fetchViasuisse();
   const capturedAt = new Date().toISOString();
 
   const perDirection = [];
   for (const direction of DIRECTIONS) {
-    perDirection.push(await processDirection(db, direction, viasuisseRaw, providerEnv, capturedAt));
+    perDirection.push(await processDirection(db, direction, viasuisseRaw, providerEnv, capturedAt, firebaseServiceAccount));
   }
 
   await db.from("delay_history").delete().lt("captured_at", daysAgo(RETENTION_DAYS.delay_history));

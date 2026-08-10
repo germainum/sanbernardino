@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1072936585940",
+    "project_id": "san-bernardino-fd747",
+    "storage_bucket": "san-bernardino-fd747.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1072936585940:android:b30e684a12e0b61cffc941",
+        "android_client_info": {
+          "package_name": "ch.sanbernardino.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDNP9MwJGKDDGt6nCXaAlhbCrJS2wikFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
