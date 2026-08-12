@@ -114,17 +114,23 @@ export function RouteMap({ evaluated }: RouteMapProps) {
   const northEnd = tunnelCoords[0] ?? colCoords[0] ?? FALLBACK_NORTH;
   const southEnd = tunnelCoords[tunnelCoords.length - 1] ?? colCoords[colCoords.length - 1] ?? FALLBACK_SOUTH;
 
-  // Computed once per mount from whatever geometry is available on first render, then never
-  // recomputed — the map fits its view exactly once and stays put for the rest of its life.
+  // Recomputed only when the direction flips (the endpoints/geometry genuinely change) —
+  // not on every poll refresh within the same direction, so the map still fits once and
+  // stays put per direction rather than jumping around every 60s.
   const bounds = useMemo(() => {
     const points = [...tunnelCoords, ...colCoords, northEnd, southEnd];
     return L.latLngBounds(points);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [snapshot.direction]);
 
   return (
     <div style={{ borderRadius: 24, overflow: "hidden", marginBottom: 16, boxShadow: C.shadowCard, height: 190, position: "relative" }}>
       <MapContainer
+        // MapContainer only applies `bounds` once, at creation (react-leaflet treats it as
+        // an initial-view prop, not a controlled one) — keying on direction forces a remount
+        // exactly when the route reverses, so the view re-fits instead of staying frozen on
+        // the previous direction's framing.
+        key={snapshot.direction}
         bounds={bounds}
         boundsOptions={{ padding: [20, 40] }}
         dragging={false}
