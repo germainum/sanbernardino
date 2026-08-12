@@ -7,6 +7,7 @@ import { RouteMap } from "../components/RouteMap";
 import { GothardPanel } from "../components/GothardPanel";
 import { ScenarioSwitcher } from "../components/ScenarioSwitcher";
 import { Skeleton } from "../components/Skeleton";
+import { WebcamCard } from "../components/WebcamCard";
 
 interface HomeProps {
   onOpenSettings: () => void;
@@ -68,6 +69,8 @@ export function Home({ onOpenSettings }: HomeProps) {
         <Comparison snapshot={snapshot} evaluated={evaluated} tunnelHistory={tunnelHistory} colHistory={colHistory} />
 
         <RouteMap evaluated={evaluated} />
+
+        <WebcamCard />
 
         {showGothard && snapshot.gothard && <GothardPanel gothard={snapshot.gothard} recommended={gothardRecommended} />}
 
