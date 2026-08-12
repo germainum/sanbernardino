@@ -1,10 +1,16 @@
-import { useEffect, useMemo } from "react";
-import { MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { useMemo } from "react";
+import { MapContainer, Marker, Polyline, TileLayer, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import type { Direction, EvaluatedSnapshot, RouteState } from "@san-bernardino/core";
-import { C, STATE } from "../theme";
+import type { Direction, EvaluatedSnapshot } from "@san-bernardino/core";
+import { C } from "../theme";
 import { decodePolyline } from "../lib/polyline";
+
+// The map is an orientation landmark, not a decision tool (StatusLine/Verdict/Comparison
+// already carry live traffic state) — so route lines here encode only "which one is
+// recommended" via a fixed accent/secondary duality, not per-state color.
+const ACCENT = C.mustard;
+const SECONDARY = C.muted;
 
 // Illustrative-only fallback for mock/dev scenarios, which have no real Google Routes
 // polyline data. Not the same coordinates RealRoutesProvider uses server-side — just close
@@ -68,48 +74,23 @@ function countryDivIcon(country: "CH" | "IT") {
 
 interface RouteLineProps {
   coords: [number, number][];
-  state: RouteState;
-  recommended: boolean;
+  accent: boolean;
 }
 
-function RouteLine({ coords, state, recommended }: RouteLineProps) {
+function RouteLine({ coords, accent }: RouteLineProps) {
   if (coords.length < 2) return null;
-  const st = STATE[state];
-  const animated = st.spd > 0;
+  const color = accent ? ACCENT : SECONDARY;
   return (
-    <>
-      {/* Pale wide underlay + saturated stroke on top reproduces AxisMap's old drop-shadow
-          glow without needing SVG filters through react-leaflet's pathOptions. */}
-      <Polyline positions={coords} pathOptions={{ color: st.color, weight: recommended ? 13 : 9, opacity: 0.3 }} />
-      <Polyline
-        positions={coords}
-        pathOptions={{
-          color: st.color,
-          weight: recommended ? 9 : 7,
-          opacity: animated ? 0.55 : 0.9,
-          className: animated ? `route-flow-${state}` : undefined,
-        }}
-      />
-    </>
+    <Polyline
+      positions={coords}
+      pathOptions={{
+        color,
+        weight: accent ? 5 : 3,
+        opacity: accent ? 0.95 : 0.65,
+        dashArray: accent ? undefined : "6 8",
+      }}
+    />
   );
-}
-
-/** Re-fits the map to whichever routes are currently visible whenever their geometry changes. */
-function FitBounds({ segments }: { segments: [number, number][][] }) {
-  const map = useMap();
-  const flatKey = segments.map((s) => s.length).join(",");
-
-  useEffect(() => {
-    const flat = segments.flat();
-    if (flat.length === 0) return;
-    // Extra vertical padding leaves room for the permanent endpoint tooltips (pointing up
-    // from the north marker, down from the south one) so they don't clip against the map's
-    // own rounded/overflow-hidden edge.
-    map.fitBounds(L.latLngBounds(flat), { paddingTopLeft: [28, 50], paddingBottomRight: [28, 50] });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, flatKey]);
-
-  return null;
 }
 
 interface RouteMapProps {
@@ -117,36 +98,63 @@ interface RouteMapProps {
 }
 
 export function RouteMap({ evaluated }: RouteMapProps) {
-  const { snapshot, verdict, saturated } = evaluated;
-  const showGothard = !!snapshot.gothard && saturated;
+  const { snapshot, verdict } = evaluated;
   const labels = DIRECTION_LABELS[snapshot.direction];
 
   const tunnelCoords = useMemo(() => (snapshot.tunnel.polyline ? decodePolyline(snapshot.tunnel.polyline) : []), [snapshot.tunnel.polyline]);
   const colCoords = useMemo(() => (snapshot.col.polyline ? decodePolyline(snapshot.col.polyline) : []), [snapshot.col.polyline]);
-  const gothardCoords = useMemo(
-    () => (showGothard && snapshot.gothard?.polyline ? decodePolyline(snapshot.gothard.polyline) : []),
-    [showGothard, snapshot.gothard?.polyline],
-  );
 
-  const hasRealGeometry = tunnelCoords.length > 1 || colCoords.length > 1;
+  // Tunnel is the accent/emphasized trace unless col is specifically the recommended one —
+  // fixed per current verdict, not tied to live traffic state (see ACCENT/SECONDARY above).
+  const tunnelAccent = verdict !== "col";
+  const colAccent = verdict === "col";
+  const tunnelColor = tunnelAccent ? ACCENT : SECONDARY;
+  const colColor = colAccent ? ACCENT : SECONDARY;
+
   const northEnd = tunnelCoords[0] ?? colCoords[0] ?? FALLBACK_NORTH;
   const southEnd = tunnelCoords[tunnelCoords.length - 1] ?? colCoords[colCoords.length - 1] ?? FALLBACK_SOUTH;
 
+  // Computed once per mount from whatever geometry is available on first render, then never
+  // recomputed — the map fits its view exactly once and stays put for the rest of its life.
+  const bounds = useMemo(() => {
+    const points = [...tunnelCoords, ...colCoords, northEnd, southEnd];
+    return L.latLngBounds(points);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div style={{ borderRadius: 24, overflow: "hidden", marginBottom: 16, boxShadow: C.shadowCard, height: 340 }}>
-      <MapContainer center={northEnd} zoom={11} scrollWheelZoom={false} style={{ width: "100%", height: "100%" }}>
+    <div style={{ borderRadius: 24, overflow: "hidden", marginBottom: 16, boxShadow: C.shadowCard, height: 190, position: "relative" }}>
+      <MapContainer
+        bounds={bounds}
+        boundsOptions={{ padding: [20, 40] }}
+        dragging={false}
+        scrollWheelZoom={false}
+        doubleClickZoom={false}
+        touchZoom={false}
+        zoomControl={false}
+        keyboard={false}
+        boxZoom={false}
+        // No `tap` prop: Leaflet 1.9.4 dropped the old tap-emulation handler this option
+        // used to toggle (modern touch browsers fire click events natively) — dragging +
+        // touchZoom + boxZoom already cover every touch-driven pan/zoom path.
+        style={{ width: "100%", height: "100%" }}
+      >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
 
-        {hasRealGeometry && (
+        {/* Secondary route drawn first, accent route last — Leaflet's SVG renderer stacks
+            paths in DOM order, so the emphasized/recommended trace must paint on top or its
+            thinner dashed sibling would overdraw it along their ~95%-shared corridor. */}
+        {tunnelAccent ? (
           <>
-            {showGothard && snapshot.gothard && <RouteLine coords={gothardCoords} state={snapshot.gothard.state} recommended={verdict === "gothard"} />}
-            <RouteLine coords={tunnelCoords} state={snapshot.tunnel.state} recommended={verdict === "tunnel"} />
-            <RouteLine coords={colCoords} state={snapshot.col.state} recommended={verdict === "col"} />
+            <RouteLine coords={colCoords} accent={false} />
+            <RouteLine coords={tunnelCoords} accent={true} />
+          </>
+        ) : (
+          <>
+            <RouteLine coords={tunnelCoords} accent={false} />
+            <RouteLine coords={colCoords} accent={true} />
           </>
         )}
-        {/* Always fit both endpoint markers into view, even in mock/dev mode with no real
-            route geometry to fit to. */}
-        <FitBounds segments={[[northEnd, southEnd], tunnelCoords, colCoords, ...(showGothard ? [gothardCoords] : [])]} />
 
         <Marker position={northEnd} icon={countryDivIcon(labels.top)}>
           <Tooltip permanent direction="top" offset={[0, -20]} className="route-map-label">
@@ -159,6 +167,32 @@ export function RouteMap({ evaluated }: RouteMapProps) {
           </Tooltip>
         </Marker>
       </MapContainer>
+
+      {/* Route identity legend, overlaid outside Leaflet's own panes (z-index up to ~700). */}
+      <div
+        style={{
+          position: "absolute",
+          top: 8,
+          left: 8,
+          zIndex: 1000,
+          display: "flex",
+          gap: 10,
+          padding: "5px 10px",
+          borderRadius: 10,
+          background: "rgba(255,255,255,0.92)",
+          boxShadow: C.shadowChip,
+          pointerEvents: "none",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: C.ink }}>
+          <span style={{ width: 14, height: tunnelAccent ? 4 : 2, borderRadius: 2, background: tunnelColor, opacity: tunnelAccent ? 1 : 0.7 }} />
+          Tunnel
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: C.ink }}>
+          <span style={{ width: 14, height: colAccent ? 4 : 2, borderRadius: 2, background: colColor, opacity: colAccent ? 1 : 0.7 }} />
+          Col
+        </span>
+      </div>
     </div>
   );
 }
