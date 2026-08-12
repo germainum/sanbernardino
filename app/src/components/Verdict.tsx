@@ -9,6 +9,33 @@ const DIRECTION_ROUTE_LABELS: Record<Direction, { from: string; to: string }> = 
   suisse: { from: "Bellinzone / Italie", to: "Coire / Zurich" },
 };
 
+/**
+ * Hero-only sentence, deliberately independent of decide()'s `reason` text (which stays
+ * number-bearing and tested elsewhere — notifications reuse it). The hero already carries
+ * the decisive gap as its own "-X min" badge, so repeating the number in prose here reads
+ * as redundant, and "un peu plus rapide" undercuts the badge's decisive tone right next to
+ * it. No numbers here on purpose — the badge is the only place the gap appears.
+ */
+function heroSentence(evaluated: EvaluatedSnapshot): string {
+  const { snapshot, verdict } = evaluated;
+  const condition = axisConditionWord(evaluated);
+
+  if (verdict === "tunnel") {
+    return snapshot.col.state === "stop"
+      ? `${condition}. Le col est fermé de toute façon.`
+      : `${condition}. Le col reste ouvert si tu préfères le panorama.`;
+  }
+  if (verdict === "col") {
+    return snapshot.tunnel.state === "stop"
+      ? `${condition}. Le tunnel est fermé de toute façon.`
+      : `${condition}. Le tunnel reste une option fiable, mais payante.`;
+  }
+  if (verdict === "gothard") {
+    return `${condition}. Le Gothard permet de contourner le blocage.`;
+  }
+  return `${condition}. Aucune alternative ne fait gagner de temps pour l'instant.`;
+}
+
 interface VerdictProps {
   direction: Direction;
   evaluated: EvaluatedSnapshot;
@@ -18,7 +45,7 @@ interface VerdictProps {
 }
 
 export function Verdict({ direction, evaluated, updatedLabel, source, stale }: VerdictProps) {
-  const { snapshot, verdict, reason } = evaluated;
+  const { snapshot, verdict } = evaluated;
   const v = VERDICT_META[verdict];
   const { from, to } = DIRECTION_ROUTE_LABELS[direction];
   const gap = computeGapMin(snapshot, verdict);
@@ -67,7 +94,7 @@ export function Verdict({ direction, evaluated, updatedLabel, source, stale }: V
             </span>
           )}
         </div>
-        <p style={{ margin: "12px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>{reason}</p>
+        <p style={{ margin: "12px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>{heroSentence(evaluated)}</p>
       </div>
     </div>
   );
