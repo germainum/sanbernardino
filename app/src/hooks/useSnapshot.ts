@@ -20,7 +20,8 @@ const LAST_KNOWN_KEY_PREFIX = "sanbernardino:lastKnown:";
 
 interface LastKnown {
   evaluated: EvaluatedSnapshot;
-  history: number[];
+  tunnelHistory: number[];
+  colHistory: number[];
 }
 
 function loadLastKnown(direction: Direction): LastKnown | null {
@@ -73,15 +74,12 @@ export function useSnapshot() {
       try {
         const state = await fetchState(direction, controller.signal);
         const evaluated = toEvaluatedSnapshot(state);
-        const primaryRoute =
-          evaluated.verdict === "tunnel" || evaluated.verdict === "col"
-            ? evaluated.verdict
-            : evaluated.snapshot.tunnel.totalMin != null
-              ? "tunnel"
-              : "col";
-        const history = await fetchHistory(direction, primaryRoute, 3, controller.signal);
+        const [tunnelHistory, colHistory] = await Promise.all([
+          fetchHistory(direction, "tunnel", 3, controller.signal),
+          fetchHistory(direction, "col", 3, controller.signal),
+        ]);
         if (cancelled) return;
-        const fresh: LastKnown = { evaluated, history };
+        const fresh: LastKnown = { evaluated, tunnelHistory, colHistory };
         setApiData(fresh);
         saveLastKnown(direction, fresh);
         setIsOffline(false);
@@ -116,7 +114,8 @@ export function useSnapshot() {
       setDirection,
       snapshot: mockSnapshot,
       evaluated: mockEvaluated,
-      history: SCENARIO_HISTORY[scenarioKey],
+      tunnelHistory: SCENARIO_HISTORY[scenarioKey].tunnel,
+      colHistory: SCENARIO_HISTORY[scenarioKey].col,
       updatedLabel: "Mis à jour il y a 2 min",
       source: "OFROU (simulé)",
       stale: false,
@@ -132,7 +131,8 @@ export function useSnapshot() {
     setDirection,
     snapshot: apiData?.evaluated.snapshot,
     evaluated: apiData?.evaluated,
-    history: apiData?.history ?? [],
+    tunnelHistory: apiData?.tunnelHistory ?? [],
+    colHistory: apiData?.colHistory ?? [],
     updatedLabel: apiData ? formatUpdatedLabel(apiData.evaluated.snapshot.updatedAt) : "",
     source: isOffline ? "Hors ligne · dernier état connu" : "OFROU",
     stale: apiData ? isStale(apiData.evaluated.snapshot.updatedAt) : false,

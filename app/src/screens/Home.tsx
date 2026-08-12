@@ -13,7 +13,8 @@ interface HomeProps {
 }
 
 export function Home({ onOpenSettings }: HomeProps) {
-  const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, updatedLabel, source, stale } = useSnapshot();
+  const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, tunnelHistory, colHistory, updatedLabel, source, stale } =
+    useSnapshot();
 
   if (status === "loading" || !snapshot || !evaluated) {
     return <Skeleton />;
@@ -64,7 +65,15 @@ export function Home({ onOpenSettings }: HomeProps) {
 
         <Verdict direction={direction} evaluated={evaluated} updatedLabel={updatedLabel} source={source} stale={stale} />
 
-        <Comparison snapshot={snapshot} evaluated={evaluated} updatedLabel={updatedLabel} source={source} stale={stale} />
+        <Comparison
+          snapshot={snapshot}
+          evaluated={evaluated}
+          tunnelHistory={tunnelHistory}
+          colHistory={colHistory}
+          updatedLabel={updatedLabel}
+          source={source}
+          stale={stale}
+        />
 
         <RouteMap evaluated={evaluated} />
 

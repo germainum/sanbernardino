@@ -16,12 +16,14 @@ const ROUTE_META: Record<ComparedRoute, { distanceKm: number | null; altitudeM: 
 interface ComparisonProps {
   snapshot: RoutesSnapshot;
   evaluated: EvaluatedSnapshot;
+  tunnelHistory: number[];
+  colHistory: number[];
   updatedLabel: string;
   source: string;
   stale: boolean;
 }
 
-export function Comparison({ snapshot, evaluated, updatedLabel, source, stale }: ComparisonProps) {
+export function Comparison({ snapshot, evaluated, tunnelHistory, colHistory, updatedLabel, source, stale }: ComparisonProps) {
   const [openRoute, setOpenRoute] = useState<ComparedRoute | null>(null);
   const colStatus = snapshot.col.colStatus ?? deriveColStatus(snapshot.col.state);
   const faster = fasterRoute(snapshot);
@@ -40,6 +42,7 @@ export function Comparison({ snapshot, evaluated, updatedLabel, source, stale }:
           chips={chipsFor("tunnel", snapshot, null)}
           distanceKm={ROUTE_META.tunnel.distanceKm}
           altitudeM={ROUTE_META.tunnel.altitudeM}
+          history={tunnelHistory}
           open={openRoute === "tunnel"}
           onToggleDetail={() => toggle("tunnel")}
           updatedLabel={updatedLabel}
@@ -74,6 +77,7 @@ export function Comparison({ snapshot, evaluated, updatedLabel, source, stale }:
         chips={chipsFor("tunnel", snapshot, faster)}
         distanceKm={ROUTE_META.tunnel.distanceKm}
         altitudeM={ROUTE_META.tunnel.altitudeM}
+        history={tunnelHistory}
         open={openRoute === "tunnel"}
         onToggleDetail={() => toggle("tunnel")}
         updatedLabel={updatedLabel}
@@ -89,6 +93,7 @@ export function Comparison({ snapshot, evaluated, updatedLabel, source, stale }:
         chips={chipsFor("col", snapshot, faster)}
         distanceKm={ROUTE_META.col.distanceKm}
         altitudeM={ROUTE_META.col.altitudeM}
+        history={colHistory}
         open={openRoute === "col"}
         onToggleDetail={() => toggle("col")}
         updatedLabel={updatedLabel}

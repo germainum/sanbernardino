@@ -12,11 +12,43 @@ interface RouteCardProps {
   chips: [string, string];
   distanceKm: number | null;
   altitudeM: number | null;
+  history: number[];
   open: boolean;
   onToggleDetail: () => void;
   updatedLabel: string;
   source: string;
   stale: boolean;
+}
+
+/** Compares the window's endpoints rather than point-to-point, so a single noisy reading
+ * doesn't flip the label — a small dead zone (±3 min) keeps genuinely flat series "stable". */
+function trendLabel(history: number[]): string {
+  const diff = history[history.length - 1] - history[0];
+  if (diff > 3) return "en hausse";
+  if (diff < -3) return "en baisse";
+  return "stable";
+}
+
+/** Compact sparkline (no axes/labels — "maintenant + tendance" carries the meaning, not a
+ * labeled 3h history). Fixed small width so it never reads as an imposing full-width chart. */
+function Sparkline({ history, color }: { history: number[]; color: string }) {
+  const W = 120;
+  const H = 40;
+  const pad = 3;
+  const max = Math.max(10, ...history);
+  const min = Math.min(0, ...history);
+  const range = Math.max(1, max - min);
+  const stepX = (W - pad * 2) / (history.length - 1);
+  const points = history.map((v, i) => `${pad + stepX * i},${H - pad - ((v - min) / range) * (H - pad * 2)}`);
+  const lastX = pad + stepX * (history.length - 1);
+  const lastY = H - pad - ((history[history.length - 1] - min) / range) * (H - pad * 2);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display: "block", maxWidth: 120 }} preserveAspectRatio="none">
+      <polyline points={points.join(" ")} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r="2.5" fill={color} />
+    </svg>
+  );
 }
 
 export function RouteCard({
@@ -28,6 +60,7 @@ export function RouteCard({
   chips,
   distanceKm,
   altitudeM,
+  history,
   open,
   onToggleDetail,
   updatedLabel,
@@ -148,6 +181,14 @@ export function RouteCard({
             {route === "col" && altitudeM != null && <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>⛰ {altitudeM} m</span>}
             <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>{route === "tunnel" ? "🎫 Vignette" : "🆓 Gratuit"}</span>
           </div>
+          {history.length > 1 && (
+            <div style={{ marginTop: 8 }}>
+              <Sparkline history={history} color={st.color} />
+              <span style={{ fontSize: 11.5, color: C.muted, fontWeight: 700, display: "block", marginTop: 2 }}>
+                {delay != null ? `+${delay} min` : "—"}, {trendLabel(history)}
+              </span>
+            </div>
+          )}
           <div
             style={{
               display: "flex",

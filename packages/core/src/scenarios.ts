@@ -66,12 +66,18 @@ export const SCENARIOS = {
 
 export type ScenarioKey = keyof typeof SCENARIOS;
 
-/** 3h history bars (7 points), ported verbatim from the prototype's per-scenario `history` arrays. */
-export const SCENARIO_HISTORY: Record<keyof typeof SCENARIOS, number[]> = {
-  fluide: [1, 0, 2, 0, 0, 1, 0],
-  bouchon: [8, 14, 22, 28, 34, 38, 40],
-  hiver: [2, 0, 1, 0, 0, 0, 0],
-  sature: [40, 52, 60, 68, 74, 78, 80],
-  gothardKo: [78, 80, 82, 80, 79, 80, 80],
-  accident: [4, 5, 7, 9, 11, 11, 11],
+/**
+ * 3h delay history (7 points) per route, for the per-route sparkline in each RouteCard's
+ * Detail drawer. The tunnel/col series that used to be the sole generic `SCENARIO_HISTORY`
+ * array are kept verbatim (ported from the prototype) under whichever route they actually
+ * matched; the other route's series is newly authored to track that scenario's own
+ * col/tunnel delay.
+ */
+export const SCENARIO_HISTORY: Record<keyof typeof SCENARIOS, { tunnel: number[]; col: number[] }> = {
+  fluide: { tunnel: [1, 0, 2, 0, 0, 1, 0], col: [0, 1, 0, 0, 0, 1, 0] },
+  bouchon: { tunnel: [8, 14, 22, 28, 34, 38, 40], col: [0, 0, 1, 0, 0, 0, 0] },
+  hiver: { tunnel: [2, 0, 1, 0, 0, 0, 0], col: [4, 3, 2, 1, 0, 0, 0] },
+  sature: { tunnel: [40, 52, 60, 68, 74, 78, 80], col: [0, 0, 0, 0, 0, 0, 0] },
+  gothardKo: { tunnel: [78, 80, 82, 80, 79, 80, 80], col: [0, 0, 0, 0, 0, 0, 0] },
+  accident: { tunnel: [15, 30, 50, 65, 75, 80, 80], col: [4, 5, 7, 9, 11, 11, 11] },
 };
