@@ -5,7 +5,6 @@ import { Verdict } from "../components/Verdict";
 import { Comparison } from "../components/Comparison";
 import { RouteMap } from "../components/RouteMap";
 import { GothardPanel } from "../components/GothardPanel";
-import { HistoryGraph } from "../components/HistoryGraph";
 import { ScenarioSwitcher } from "../components/ScenarioSwitcher";
 import { Skeleton } from "../components/Skeleton";
 
@@ -14,8 +13,7 @@ interface HomeProps {
 }
 
 export function Home({ onOpenSettings }: HomeProps) {
-  const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, history, updatedLabel, source, stale } =
-    useSnapshot();
+  const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, updatedLabel, source, stale } = useSnapshot();
 
   if (status === "loading" || !snapshot || !evaluated) {
     return <Skeleton />;
@@ -23,13 +21,6 @@ export function Home({ onOpenSettings }: HomeProps) {
 
   const showGothard = !!snapshot.gothard && evaluated.saturated;
   const gothardRecommended = evaluated.verdict === "gothard";
-
-  const primaryRoute: "tunnel" | "col" =
-    evaluated.verdict === "tunnel" || evaluated.verdict === "col"
-      ? evaluated.verdict
-      : snapshot.tunnel.totalMin != null
-        ? "tunnel"
-        : "col";
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: "'Nunito', system-ui, -apple-system, sans-serif", padding: "18px 16px 36px" }}>
@@ -78,8 +69,6 @@ export function Home({ onOpenSettings }: HomeProps) {
         <RouteMap evaluated={evaluated} />
 
         {showGothard && snapshot.gothard && <GothardPanel gothard={snapshot.gothard} recommended={gothardRecommended} />}
-
-        <HistoryGraph history={history} routeLabel={primaryRoute === "tunnel" ? "Tunnel" : "Col"} />
 
         {scenarioKey && setScenarioKey && (
           <div style={{ marginTop: 20 }}>
