@@ -48,8 +48,8 @@ export function RouteCard({
         background: C.card,
         borderRadius: 22,
         padding: 14,
-        border: `1.5px solid ${recommended ? C.lime : "transparent"}`,
-        boxShadow: recommended ? "0 8px 24px rgba(91,156,28,0.18)" : C.shadowCard,
+        border: `1.5px solid ${recommended ? C.mustard : "transparent"}`,
+        boxShadow: recommended ? "0 8px 24px rgba(184,132,30,0.18)" : C.shadowCard,
       }}
     >
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -72,8 +72,8 @@ export function RouteCard({
                   width: 15,
                   height: 15,
                   borderRadius: "50%",
-                  background: C.lime,
-                  color: "#1c3208",
+                  background: C.mustard,
+                  color: C.ink,
                   fontSize: 9,
                   fontWeight: 800,
                   flexShrink: 0,

@@ -39,7 +39,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return (
     <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", cursor: "pointer" }}>
       <span style={{ fontSize: 14, color: C.ink, fontWeight: 600, paddingRight: 12 }}>{label}</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ width: 20, height: 20, accentColor: C.limeDeep }} />
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ width: 20, height: 20, accentColor: C.successText }} />
     </label>
   );
 }
@@ -126,7 +126,7 @@ export function Settings({ onBack }: SettingsProps) {
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
           <button
             onClick={onBack}
-            style={{ background: C.card, borderRadius: 999, width: 40, height: 40, fontSize: 18, fontWeight: 800, color: C.forest, boxShadow: C.shadowChip }}
+            style={{ background: C.card, borderRadius: 999, width: 40, height: 40, fontSize: 18, fontWeight: 800, color: C.dark, boxShadow: C.shadowChip }}
             aria-label="Retour"
           >
             ←
@@ -141,7 +141,7 @@ export function Settings({ onBack }: SettingsProps) {
             </p>
             <button
               onClick={handleEnablePush}
-              style={{ width: "100%", padding: "12px 0", borderRadius: 999, background: C.lime, color: "#1c3208", fontWeight: 800, fontSize: 14 }}
+              style={{ width: "100%", padding: "12px 0", borderRadius: 999, background: C.mustard, color: C.ink, fontWeight: 800, fontSize: 14 }}
             >
               Activer les notifications
             </button>
@@ -152,7 +152,7 @@ export function Settings({ onBack }: SettingsProps) {
           <SectionCard title="Notifications">
             <button
               onClick={handleEnablePush}
-              style={{ width: "100%", padding: "12px 0", borderRadius: 999, background: C.lime, color: "#1c3208", fontWeight: 800, fontSize: 14 }}
+              style={{ width: "100%", padding: "12px 0", borderRadius: 999, background: C.mustard, color: C.ink, fontWeight: 800, fontSize: 14 }}
             >
               Activer les notifications
             </button>
@@ -181,7 +181,7 @@ export function Settings({ onBack }: SettingsProps) {
                   step={5}
                   value={prefs.jam_threshold_min}
                   onChange={(e) => void savePrefs({ ...prefs, jam_threshold_min: Number(e.target.value) })}
-                  style={{ flex: 1, accentColor: C.limeDeep }}
+                  style={{ flex: 1, accentColor: C.successText }}
                 />
                 <span style={{ fontSize: 14, fontWeight: 800, color: C.ink, minWidth: 56, textAlign: "right" }}>{prefs.jam_threshold_min} min</span>
               </div>
@@ -224,8 +224,8 @@ export function Settings({ onBack }: SettingsProps) {
                       borderRadius: 999,
                       fontSize: 13,
                       fontWeight: 700,
-                      background: tripDirection === d ? C.lime : C.bg,
-                      color: tripDirection === d ? "#1c3208" : C.muted,
+                      background: tripDirection === d ? C.mustard : C.bg,
+                      color: tripDirection === d ? C.ink : C.muted,
                     }}
                   >
                     {d === "suisse" ? "Vers la Suisse" : "Vers l'Italie"}
@@ -241,11 +241,11 @@ export function Settings({ onBack }: SettingsProps) {
               <button
                 onClick={handleSchedulePlannedTrip}
                 disabled={!tripDepartAt}
-                style={{ width: "100%", padding: "10px 0", borderRadius: 999, background: tripDepartAt ? C.forest : C.line, color: "#fff", fontWeight: 700, fontSize: 13 }}
+                style={{ width: "100%", padding: "10px 0", borderRadius: 999, background: tripDepartAt ? C.dark : C.line, color: "#fff", fontWeight: 700, fontSize: 13 }}
               >
                 Programmer le rappel (T-30 min)
               </button>
-              {tripStatus === "saved" && <p style={{ fontSize: 12, color: C.limeDeep, margin: "8px 0 0" }}>Rappel programmé.</p>}
+              {tripStatus === "saved" && <p style={{ fontSize: 12, color: C.successText, margin: "8px 0 0" }}>Rappel programmé.</p>}
               {tripStatus === "error" && <p style={{ fontSize: 12, color: C.coral, margin: "8px 0 0" }}>Échec — réessaie plus tard.</p>}
             </SectionCard>
 

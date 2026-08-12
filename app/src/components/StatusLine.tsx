@@ -16,10 +16,10 @@ interface StatusLineProps {
 }
 
 /**
- * The merged status row for the hero. Sits on the dark-green gradient, so text uses the
- * same white/translucent-white family already proven to pass contrast there (see
- * VerdictHero's #4f8f35 gradient fix) — never the light-mode STATE colors meant for white
- * cards. The dot can keep STATE's color since it's a small decorative indicator, not text.
+ * The merged status row for the hero. Sits on the hero's solid near-black background
+ * (`C.dark`), so text uses white/translucent-white — never the light-mode STATE colors
+ * meant for white cards. The dot can keep STATE's color since it's a small decorative
+ * indicator, not text, so text-contrast rules don't apply the same way to it.
  */
 export function StatusLine({ colStatus, conditionWord, updatedLabel, source, stale }: StatusLineProps) {
   const meta = STATUS_META[colStatus];

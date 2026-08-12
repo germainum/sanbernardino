@@ -109,7 +109,7 @@ function CountryNode({ cx, cy, country, label, labelY }: CountryNodeProps) {
           <circle cx={cx} cy={cy} r={15} fill="none" stroke="#fff" strokeWidth="1.6" />
         </>
       )}
-      <text x={cx} y={labelY} textAnchor="middle" fontSize="11.5" fontWeight="800" fill={isCH ? C.forest : C.amberDeep} fontFamily="Nunito, sans-serif">
+      <text x={cx} y={labelY} textAnchor="middle" fontSize="11.5" fontWeight="800" fill={isCH ? C.dark : C.amberDeep} fontFamily="Nunito, sans-serif">
         {label}
       </text>
     </g>

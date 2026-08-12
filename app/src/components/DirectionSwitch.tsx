@@ -32,9 +32,9 @@ export function DirectionSwitch({ direction, onChange }: DirectionSwitchProps) {
               alignItems: "center",
               justifyContent: "center",
               gap: 6,
-              background: on ? C.lime : C.card,
-              color: on ? "#1c3208" : C.muted,
-              boxShadow: on ? "0 6px 16px rgba(143,203,46,0.3)" : "0 2px 8px rgba(24,39,28,0.05)",
+              background: on ? C.mustard : C.card,
+              color: on ? C.ink : C.muted,
+              boxShadow: on ? "0 6px 16px rgba(227,167,47,0.3)" : "0 2px 8px rgba(24,39,28,0.05)",
             }}
           >
             {on && <span aria-hidden="true">✓</span>}

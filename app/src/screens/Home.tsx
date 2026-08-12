@@ -47,7 +47,7 @@ export function Home({ onOpenSettings }: HomeProps) {
             >
               ⚙
             </button>
-            <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.forest, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13 }}>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.dark, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13 }}>
               A13
             </div>
           </div>

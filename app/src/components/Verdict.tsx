@@ -32,11 +32,10 @@ export function Verdict({ direction, evaluated, updatedLabel, source, stale }: V
         marginBottom: 16,
         position: "relative",
         overflow: "hidden",
-        // Light stop darkened from #6fb03e -> #4f8f35: the original failed WCAG contrast for
-        // white text (~2.6:1 solid, ~2.3:1 at 0.85 opacity) even against the large-text 3:1
-        // threshold. #4f8f35 holds >=4.5:1 for white text across the whole gradient.
-        background: "linear-gradient(160deg,#2b5236 0%,#3f7a3f 55%,#4f8f35 100%)",
-        boxShadow: "0 12px 30px rgba(34,67,46,0.28)",
+        // Solid near-black (palette pivot from the old dark-green gradient) — white text
+        // holds ~17:1 here, comfortably clearing WCAG AA's 4.5:1 with a lot of headroom.
+        background: C.dark,
+        boxShadow: "0 12px 30px rgba(0,0,0,0.32)",
       }}
     >
       <div
@@ -51,7 +50,7 @@ export function Verdict({ direction, evaluated, updatedLabel, source, stale }: V
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{from}</span>
-          <span style={{ color: C.lime }}>→</span>
+          <span style={{ color: C.mustard }}>→</span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{to}</span>
         </div>
 
@@ -63,7 +62,7 @@ export function Verdict({ direction, evaluated, updatedLabel, source, stale }: V
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
           <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff", lineHeight: 1.05 }}>{v.title}</h1>
           {gap != null && (
-            <span style={{ fontSize: 20, fontWeight: 800, color: C.lime }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: C.mustard }}>
               -{gap} <span style={{ fontSize: 14, fontWeight: 700 }}>min</span>
             </span>
           )}

@@ -12,8 +12,8 @@ export default defineConfig({
         name: "San Bernardino",
         short_name: "San Bernardino",
         description: "Tunnel, col, ou déviation Gothard ? La décision pour l'axe A13.",
-        theme_color: "#22432E",
-        background_color: "#EDF2E6",
+        theme_color: "#1C1B18",
+        background_color: "#F6F1E7",
         display: "standalone",
         lang: "fr",
         icons: [

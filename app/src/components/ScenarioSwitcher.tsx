@@ -24,7 +24,7 @@ export function ScenarioSwitcher({ value, onChange }: ScenarioSwitcherProps) {
                 padding: "8px 13px",
                 borderRadius: 999,
                 fontWeight: 700,
-                background: on ? C.forest : C.card,
+                background: on ? C.dark : C.card,
                 color: on ? "#fff" : C.muted,
                 boxShadow: on ? "none" : "0 2px 8px rgba(24,39,28,0.05)",
               }}
