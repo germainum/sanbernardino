@@ -46,8 +46,12 @@ interface LatLng {
 // actual local delta and reading as flatly wrong to anyone comparing "tunnel vs col".
 // Hinterrhein is the last village before the crossing on the Coire side; Mesocco is south
 // of where the tunnel/col roads reconverge, before the corridor continues toward Bellinzona.
-const HINTERRHEIN: LatLng = { latitude: 46.6178, longitude: 9.2072 };
-const MESOCCO: LatLng = { latitude: 46.3733, longitude: 9.2367 };
+// Coordinates verified 2026-08-12 (the original guesses were ~9km off for Hinterrhein,
+// enough to land off the road network and force Google into a huge unrelated detour —
+// that's what produced ~133min "local crossing" times, an even worse regression than the
+// original full-corridor numbers).
+const HINTERRHEIN: LatLng = { latitude: 46.533, longitude: 9.2 };
+const MESOCCO: LatLng = { latitude: 46.3919, longitude: 9.2328 };
 
 // Full-corridor endpoints — kept only for the Gothard comparison. Gothard is a genuine
 // alternative solely for a real, longer trip (detouring ~100km to skip a 20min local
