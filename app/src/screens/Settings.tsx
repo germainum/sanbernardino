@@ -129,7 +129,7 @@ export function Settings({ onBack }: SettingsProps) {
             style={{ background: C.card, borderRadius: 999, width: 40, height: 40, fontSize: 18, fontWeight: 800, color: C.dark, boxShadow: C.shadowChip }}
             aria-label="Retour"
           >
-            ←
+            <span aria-hidden="true">←</span>
           </button>
           <div style={{ fontSize: 22, fontWeight: 800, color: C.ink }}>Réglages</div>
         </div>
@@ -246,11 +246,11 @@ export function Settings({ onBack }: SettingsProps) {
                 Programmer le rappel (T-30 min)
               </button>
               {tripStatus === "saved" && <p style={{ fontSize: 12, color: C.successText, margin: "8px 0 0" }}>Rappel programmé.</p>}
-              {tripStatus === "error" && <p style={{ fontSize: 12, color: C.coral, margin: "8px 0 0" }}>Échec — réessaie plus tard.</p>}
+              {tripStatus === "error" && <p style={{ fontSize: 12, color: C.coralDeep, margin: "8px 0 0" }}>Échec — réessaie plus tard.</p>}
             </SectionCard>
 
     {saveStatus === "error" && (
-              <p style={{ fontSize: 12, color: C.coral, textAlign: "center" }}>Échec de l'enregistrement — vérifie ta connexion.</p>
+              <p style={{ fontSize: 12, color: C.coralDeep, textAlign: "center" }}>Échec de l'enregistrement — vérifie ta connexion.</p>
             )}
           </>
         )}

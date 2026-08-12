@@ -33,7 +33,7 @@ export function StatusLine({ colStatus, conditionWord, updatedLabel, source, sta
       <span style={{ fontSize: 12.5, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>{conditionWord}</span>
       <span style={{ color: "rgba(255,255,255,0.5)" }}>·</span>
       <span style={{ fontSize: 12.5, fontWeight: stale ? 800 : 600, color: "#fff" }}>
-        {stale ? "⚠ " : ""}
+        {stale && <span aria-hidden="true">⚠ </span>}
         {updatedLabel}
         {stale ? " — à vérifier" : ""}
       </span>

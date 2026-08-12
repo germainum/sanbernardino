@@ -55,12 +55,13 @@ export function Comparison({ snapshot, evaluated, tunnelHistory, colHistory, upd
             padding: "10px 14px",
             borderRadius: 14,
             background: "rgba(228,100,90,0.10)",
-            color: C.coral,
+            color: C.coralDeep,
             fontSize: 12.5,
             fontWeight: 700,
           }}
         >
-          🚫 Col fermé — {closedColMessage(snapshot.col)}
+          <span aria-hidden="true">🚫 </span>
+          Col fermé — {closedColMessage(snapshot.col)}
         </div>
       </div>
     );

@@ -27,7 +27,7 @@ const DIRECTION_LABELS: Record<Direction, { top: "CH" | "IT"; bottom: "CH" | "IT
 /** Ported from AxisMap.tsx's old CountryNode SVG artwork, recentered into a standalone 50x50 marker. */
 function countryMarkerSvg(country: "CH" | "IT"): string {
   if (country === "CH") {
-    return `<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+    return `<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="25" cy="25" r="25" fill="rgba(120,150,170,0.13)" />
       <path d="M-6,46 L13,19 L31,46 Z" fill="#A9B7C1" />
       <path d="M22,46 L41,13 L60,46 Z" fill="#C2CDD5" />
@@ -48,7 +48,7 @@ function countryMarkerSvg(country: "CH" | "IT"): string {
       return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#EFA83A" stroke-width="2.6" stroke-linecap="round" />`;
     })
     .join("");
-  return `<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <circle cx="25" cy="25" r="25" fill="rgba(240,168,58,0.20)" />
     ${rays}
     <clipPath id="itFlagClip"><circle cx="25" cy="25" r="15" /></clipPath>
@@ -162,12 +162,12 @@ export function RouteMap({ evaluated }: RouteMapProps) {
           </>
         )}
 
-        <Marker position={northEnd} icon={countryDivIcon(labels.top)}>
+        <Marker position={northEnd} icon={countryDivIcon(labels.top)} keyboard={false}>
           <Tooltip permanent direction="top" offset={[0, -20]} className="route-map-label">
             {labels.topLabel}
           </Tooltip>
         </Marker>
-        <Marker position={southEnd} icon={countryDivIcon(labels.bottom)}>
+        <Marker position={southEnd} icon={countryDivIcon(labels.bottom)} keyboard={false}>
           <Tooltip permanent direction="bottom" offset={[0, 20]} className="route-map-label">
             {labels.bottomLabel}
           </Tooltip>
@@ -191,11 +191,11 @@ export function RouteMap({ evaluated }: RouteMapProps) {
         }}
       >
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: C.ink }}>
-          <span style={{ width: 14, height: tunnelAccent ? 4 : 2, borderRadius: 2, background: tunnelColor, opacity: tunnelAccent ? 1 : 0.7 }} />
+          <span aria-hidden="true" style={{ width: 14, height: tunnelAccent ? 4 : 2, borderRadius: 2, background: tunnelColor, opacity: tunnelAccent ? 1 : 0.7 }} />
           Tunnel
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: C.ink }}>
-          <span style={{ width: 14, height: colAccent ? 4 : 2, borderRadius: 2, background: colColor, opacity: colAccent ? 1 : 0.7 }} />
+          <span aria-hidden="true" style={{ width: 14, height: colAccent ? 4 : 2, borderRadius: 2, background: colColor, opacity: colAccent ? 1 : 0.7 }} />
           Col
         </span>
       </div>

@@ -13,14 +13,14 @@ interface DirectionSwitchProps {
 
 export function DirectionSwitch({ direction, onChange }: DirectionSwitchProps) {
   return (
-    <div role="tablist" aria-label="Direction" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+    <div role="group" aria-label="Direction" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
       {OPTIONS.map((o) => {
         const on = direction === o.id;
         return (
           <button
             key={o.id}
-            role="tab"
-            aria-selected={on}
+            type="button"
+            aria-pressed={on}
             onClick={() => onChange(o.id)}
             style={{
               flex: 1,

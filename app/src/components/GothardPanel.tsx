@@ -26,7 +26,7 @@ export function GothardPanel({ gothard, recommended }: GothardPanelProps) {
         <div style={{ width: 48, height: 48, borderRadius: 14, flexShrink: 0, background: st.grad }} />
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: C.ink }}>Gothard</div>
-          <div style={{ fontSize: 12.5, color: st.color, fontWeight: 600, marginTop: 2 }}>{gothard.detail}</div>
+          <div style={{ fontSize: 12.5, color: st.textColor, fontWeight: 600, marginTop: 2 }}>{gothard.detail}</div>
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.ink, lineHeight: 1 }}>

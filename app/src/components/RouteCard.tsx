@@ -72,7 +72,7 @@ export function RouteCard({
   // shared-highway traffic, not a problem specific to this crossing — only tint/attribute the
   // total to "a local issue" when the real road-status feed (state) confirms one.
   const localIssue = data.state !== "go";
-  const totalColor = !localIssue ? C.ink : delay == null ? C.muted : delay < 40 ? C.amber : C.coral;
+  const totalColor = !localIssue ? C.ink : delay == null ? C.muted : delay < 40 ? C.amberDeep : C.coralDeep;
   const drawerId = `route-detail-${route}`;
 
   return (
@@ -140,7 +140,7 @@ export function RouteCard({
             style={{
               fontSize: 11,
               fontWeight: 700,
-              color: st.color,
+              color: st.textColor,
               background: st.soft,
               borderRadius: 999,
               padding: "3px 9px",
@@ -155,6 +155,7 @@ export function RouteCard({
         type="button"
         aria-expanded={open}
         aria-controls={drawerId}
+        aria-label={`Voir le détail du ${name.toLowerCase()}`}
         onClick={onToggleDetail}
         style={{
           marginTop: 10,
@@ -177,9 +178,22 @@ export function RouteCard({
             {data.baseMin} + {delay ?? 0} = {data.totalMin ?? "—"} min
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 8 }}>
-            {route === "tunnel" && distanceKm != null && <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>📏 {distanceKm} km</span>}
-            {route === "col" && altitudeM != null && <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>⛰ {altitudeM} m</span>}
-            <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>{route === "tunnel" ? "🎫 Vignette" : "🆓 Gratuit"}</span>
+            {route === "tunnel" && distanceKm != null && (
+              <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
+                <span aria-hidden="true">📏 </span>
+                {distanceKm} km
+              </span>
+            )}
+            {route === "col" && altitudeM != null && (
+              <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
+                <span aria-hidden="true">⛰ </span>
+                {altitudeM} m
+              </span>
+            )}
+            <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
+              <span aria-hidden="true">{route === "tunnel" ? "🎫 " : "🆓 "}</span>
+              {route === "tunnel" ? "Vignette" : "Gratuit"}
+            </span>
           </div>
           {history.length > 1 && (
             <div style={{ marginTop: 8 }}>
@@ -198,11 +212,11 @@ export function RouteCard({
               borderTop: `1px solid ${C.line}`,
               fontSize: 11,
               fontWeight: 600,
-              color: stale ? C.amber : C.muted,
+              color: stale ? C.amberDeep : C.muted,
             }}
           >
             <span>
-              {stale ? "⚠ " : "● "}
+              <span aria-hidden="true">{stale ? "⚠ " : "● "}</span>
               {updatedLabel}
               {stale ? " — à vérifier" : ""}
             </span>

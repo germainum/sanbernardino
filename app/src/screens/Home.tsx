@@ -37,7 +37,7 @@ export function Home({ onOpenSettings }: HomeProps) {
               aria-label="Réglages"
               style={{ width: 42, height: 42, borderRadius: "50%", background: C.card, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: C.shadowChip }}
             >
-              ⚙
+              <span aria-hidden="true">⚙</span>
             </button>
             <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.dark, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13 }}>
               A13
@@ -49,7 +49,7 @@ export function Home({ onOpenSettings }: HomeProps) {
           <div
             style={{
               background: C.coral,
-              color: "#fff",
+              color: C.ink,
               borderRadius: 14,
               padding: "10px 14px",
               marginBottom: 16,

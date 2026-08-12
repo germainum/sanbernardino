@@ -77,7 +77,7 @@ export function Verdict({ direction, evaluated, updatedLabel, source, stale }: V
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{from}</span>
-          <span style={{ color: C.mustard }}>→</span>
+          <span style={{ color: C.mustard }} aria-hidden="true">→</span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{to}</span>
         </div>
 
