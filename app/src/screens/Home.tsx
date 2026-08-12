@@ -1,14 +1,10 @@
-import { deriveColStatus } from "@san-bernardino/core";
 import { useSnapshot } from "../hooks/useSnapshot";
 import { C } from "../theme";
 import { DirectionSwitch } from "../components/DirectionSwitch";
-import { ColStatusBadge } from "../components/ColStatusBadge";
-import { VerdictHero } from "../components/VerdictHero";
-import { DelayHeadline } from "../components/DelayHeadline";
+import { Verdict } from "../components/Verdict";
+import { Comparison } from "../components/Comparison";
 import { AxisMap } from "../components/AxisMap";
-import { RouteCard } from "../components/RouteCard";
 import { GothardPanel } from "../components/GothardPanel";
-import { Breakdown, type BreakdownRow } from "../components/Breakdown";
 import { HistoryGraph } from "../components/HistoryGraph";
 import { ScenarioSwitcher } from "../components/ScenarioSwitcher";
 import { Skeleton } from "../components/Skeleton";
@@ -16,12 +12,6 @@ import { Skeleton } from "../components/Skeleton";
 interface HomeProps {
   onOpenSettings: () => void;
 }
-
-/** Physical facts, not live data — feeds Breakdown's comparison row. RouteCard's `meta` prop keeps its own prose version. */
-const ROUTE_META = {
-  tunnel: { cost: "vignette" as const, distanceKm: 6.6, altitudeM: null },
-  col: { cost: "gratuit" as const, distanceKm: null, altitudeM: 2065 },
-};
 
 export function Home({ onOpenSettings }: HomeProps) {
   const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, history, updatedLabel, source, stale } =
@@ -40,43 +30,6 @@ export function Home({ onOpenSettings }: HomeProps) {
       : snapshot.tunnel.totalMin != null
         ? "tunnel"
         : "col";
-  const primaryDelay = evaluated.delays[primaryRoute] ?? null;
-
-  const rows: BreakdownRow[] = [
-    {
-      name: "Tunnel",
-      base: snapshot.tunnel.baseMin,
-      delay: evaluated.delays.tunnel ?? null,
-      total: snapshot.tunnel.totalMin,
-      recommended: evaluated.verdict === "tunnel",
-      state: snapshot.tunnel.state,
-      detail: snapshot.tunnel.detail,
-      ...ROUTE_META.tunnel,
-    },
-    {
-      name: "Col",
-      base: snapshot.col.baseMin,
-      delay: evaluated.delays.col ?? null,
-      total: snapshot.col.totalMin,
-      recommended: evaluated.verdict === "col",
-      state: snapshot.col.state,
-      detail: snapshot.col.detail,
-      ...ROUTE_META.col,
-    },
-    ...(showGothard && snapshot.gothard
-      ? [
-          {
-            name: "Gothard",
-            base: snapshot.gothard.baseMin,
-            delay: evaluated.delays.gothard ?? null,
-            total: snapshot.gothard.totalMin,
-            recommended: gothardRecommended,
-            state: snapshot.gothard.state,
-            detail: snapshot.gothard.detail,
-          },
-        ]
-      : []),
-  ];
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: "'Nunito', system-ui, -apple-system, sans-serif", padding: "18px 16px 36px" }}>
@@ -118,38 +71,14 @@ export function Home({ onOpenSettings }: HomeProps) {
 
         <DirectionSwitch direction={direction} onChange={setDirection} />
 
-        <ColStatusBadge status={snapshot.col.colStatus ?? deriveColStatus(snapshot.col.state)} detail={snapshot.col.detail} />
+        <Verdict direction={direction} evaluated={evaluated} updatedLabel={updatedLabel} source={source} stale={stale} />
 
-        <VerdictHero direction={direction} verdict={evaluated.verdict} reason={evaluated.reason} />
-
-        <DelayHeadline
-          route={primaryRoute}
-          state={snapshot[primaryRoute].state}
-          delay={primaryDelay}
-          totalMin={snapshot[primaryRoute].totalMin}
-          updatedLabel={updatedLabel}
-          source={source}
-          stale={stale}
-        />
+        <Comparison snapshot={snapshot} evaluated={evaluated} updatedLabel={updatedLabel} source={source} stale={stale} />
 
         <AxisMap evaluated={evaluated} />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-          {/* The recommended card always renders first — order itself is a non-color signal. */}
-          {(() => {
-            const tunnelCard = (
-              <RouteCard key="tunnel" name="Le Tunnel du San Bernardino" meta="6,6 km · vignette" thumbLabel="TUNNEL" data={snapshot.tunnel} delay={evaluated.delays.tunnel ?? null} recommended={evaluated.verdict === "tunnel"} />
-            );
-            const colCard = (
-              <RouteCard key="col" name="La Route du Col du San Bernardino" meta="Passo del San Bernardino · 2065 m · gratuit" thumbLabel="COL" data={snapshot.col} delay={evaluated.delays.col ?? null} recommended={evaluated.verdict === "col"} />
-            );
-            return evaluated.verdict === "col" ? [colCard, tunnelCard] : [tunnelCard, colCard];
-          })()}
-        </div>
-
         {showGothard && snapshot.gothard && <GothardPanel gothard={snapshot.gothard} recommended={gothardRecommended} />}
 
-        <Breakdown rows={rows} />
         <HistoryGraph history={history} routeLabel={primaryRoute === "tunnel" ? "Tunnel" : "Col"} />
 
         {scenarioKey && setScenarioKey && (

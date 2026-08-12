@@ -1,20 +1,28 @@
-import type { Direction, Verdict } from "@san-bernardino/core";
+import type { Direction, EvaluatedSnapshot } from "@san-bernardino/core";
+import { deriveColStatus } from "@san-bernardino/core";
 import { C, VERDICT_META } from "../theme";
+import { StatusLine } from "./StatusLine";
+import { axisConditionWord, computeGapMin } from "../lib/comparison";
 
 const DIRECTION_ROUTE_LABELS: Record<Direction, { from: string; to: string }> = {
   italie: { from: "Coire / Zurich", to: "Bellinzone / Italie" },
   suisse: { from: "Bellinzone / Italie", to: "Coire / Zurich" },
 };
 
-interface VerdictHeroProps {
+interface VerdictProps {
   direction: Direction;
-  verdict: Verdict;
-  reason: string;
+  evaluated: EvaluatedSnapshot;
+  updatedLabel: string;
+  source: string;
+  stale: boolean;
 }
 
-export function VerdictHero({ direction, verdict, reason }: VerdictHeroProps) {
+export function Verdict({ direction, evaluated, updatedLabel, source, stale }: VerdictProps) {
+  const { snapshot, verdict, reason } = evaluated;
   const v = VERDICT_META[verdict];
   const { from, to } = DIRECTION_ROUTE_LABELS[direction];
+  const gap = computeGapMin(snapshot, verdict);
+  const colStatus = snapshot.col.colStatus ?? deriveColStatus(snapshot.col.state);
 
   return (
     <div
@@ -46,10 +54,20 @@ export function VerdictHero({ direction, verdict, reason }: VerdictHeroProps) {
           <span style={{ color: C.lime }}>→</span>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{to}</span>
         </div>
+
+        <StatusLine colStatus={colStatus} conditionWord={axisConditionWord(evaluated)} updatedLabel={updatedLabel} source={source} stale={stale} />
+
         <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: 999, background: v.chipBg, color: v.chipInk, fontSize: 12, fontWeight: 800, marginBottom: 12 }}>
           {v.chip}
         </div>
-        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff", lineHeight: 1.05 }}>{v.title}</h1>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff", lineHeight: 1.05 }}>{v.title}</h1>
+          {gap != null && (
+            <span style={{ fontSize: 20, fontWeight: 800, color: C.lime }}>
+              -{gap} <span style={{ fontSize: 14, fontWeight: 700 }}>min</span>
+            </span>
+          )}
+        </div>
         <p style={{ margin: "12px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>{reason}</p>
       </div>
     </div>

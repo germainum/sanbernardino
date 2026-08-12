@@ -33,21 +33,17 @@ interface PillProps {
   x: number;
   y: number;
   label: string;
-  eta: number | null | undefined;
   color: string;
   dim?: boolean;
 }
 
-function Pill({ x, y, label, eta, color, dim }: PillProps) {
+function Pill({ x, y, label, color, dim }: PillProps) {
   const w = 66;
   return (
     <g opacity={dim ? 0.5 : 1}>
-      <rect x={x - w / 2} y={y - 12} width={w} height={24} rx={12} fill="#fff" stroke={color} strokeWidth="1.5" />
-      <text x={x} y={y + 1} textAnchor="middle" fontSize="10.5" fontWeight="800" fill={C.ink} fontFamily="Nunito, sans-serif">
+      <rect x={x - w / 2} y={y - 10} width={w} height={20} rx={10} fill="#fff" stroke={color} strokeWidth="1.5" />
+      <text x={x} y={y + 4.5} textAnchor="middle" fontSize="10.5" fontWeight="800" fill={C.ink} fontFamily="Nunito, sans-serif">
         {label}
-      </text>
-      <text x={x} y={y + 10.5} textAnchor="middle" fontSize="8" fontWeight="700" fill={color} fontFamily="Nunito, sans-serif">
-        {eta != null ? eta + " min" : "—"}
       </text>
     </g>
   );
@@ -159,17 +155,10 @@ export function AxisMap({ evaluated }: AxisMapProps) {
         <CountryNode cx={170} cy={40} country={labels.top} label={labels.topLabel} labelY={13} />
         <CountryNode cx={170} cy={360} country={labels.bottom} label={labels.bottomLabel} labelY={397} />
 
-        <Pill x={170} y={128} label="Tunnel" eta={snapshot.tunnel.totalMin} color={STATE[snapshot.tunnel.state].color} />
-        <Pill x={258} y={150} label="Col" eta={snapshot.col.totalMin} color={STATE[snapshot.col.state].color} />
+        <Pill x={170} y={128} label="Tunnel" color={STATE[snapshot.tunnel.state].color} />
+        <Pill x={258} y={150} label="Col" color={STATE[snapshot.col.state].color} />
         {showGothard && snapshot.gothard && (
-          <Pill
-            x={70}
-            y={150}
-            label="Gothard"
-            eta={snapshot.gothard.totalMin}
-            color={STATE[snapshot.gothard.state].color}
-            dim={verdict !== "gothard"}
-          />
+          <Pill x={70} y={150} label="Gothard" color={STATE[snapshot.gothard.state].color} dim={verdict !== "gothard"} />
         )}
       </svg>
     </div>
