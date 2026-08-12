@@ -11,7 +11,7 @@ export interface StateResponse {
   delays: EvaluatedSnapshot["delays"];
 }
 
-function authHeaders() {
+export function authHeaders() {
   return { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
 }
 
