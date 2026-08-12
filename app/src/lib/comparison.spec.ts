@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { EvaluatedSnapshot, RoutesSnapshot } from "@san-bernardino/core";
-import { axisConditionWord, chipsFor, closedColMessage, computeGapMin, fasterRoute } from "./comparison";
+import { axisConditionWord, closedColMessage, computeGapMin } from "./comparison";
 
 function snapshot(overrides: Partial<RoutesSnapshot> = {}): RoutesSnapshot {
   return {
@@ -25,34 +25,6 @@ describe("computeGapMin", () => {
 
   it("returns null when either total is missing", () => {
     expect(computeGapMin(snapshot({ col: { state: "stop", baseMin: 34, totalMin: null } }), "tunnel")).toBeNull();
-  });
-});
-
-describe("fasterRoute", () => {
-  it("picks the lower total", () => {
-    expect(fasterRoute(snapshot())).toBe("tunnel");
-  });
-
-  it("returns null on a tie or missing data", () => {
-    expect(fasterRoute(snapshot({ col: { state: "go", baseMin: 34, totalMin: 25 } }))).toBeNull();
-    expect(fasterRoute(snapshot({ col: { state: "stop", baseMin: 34, totalMin: null } }))).toBeNull();
-  });
-});
-
-describe("chipsFor", () => {
-  it("labels the faster route and gives the other its trait fallback", () => {
-    expect(chipsFor("col", snapshot(), "col")).toEqual(["Plus rapide", "Gratuit"]);
-    expect(chipsFor("tunnel", snapshot(), "col")).toEqual(["Fiable", "Vignette"]);
-  });
-
-  it("replaces the first chip with the real detail text when the route has a local issue", () => {
-    const withJam = snapshot({ tunnel: { state: "caution", baseMin: 8, totalMin: 48, detail: "Bouchon 4 km" } });
-    expect(chipsFor("tunnel", withJam, "col")).toEqual(["Bouchon 4 km", "Vignette"]);
-  });
-
-  it("falls back to the trait chip if there's a local issue but no detail text", () => {
-    const noDetail = snapshot({ tunnel: { state: "caution", baseMin: 8, totalMin: 48 } });
-    expect(chipsFor("tunnel", noDetail, "col")).toEqual(["Fiable", "Vignette"]);
   });
 });
 

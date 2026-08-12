@@ -65,15 +65,7 @@ export function Home({ onOpenSettings }: HomeProps) {
 
         <Verdict direction={direction} evaluated={evaluated} updatedLabel={updatedLabel} source={source} stale={stale} />
 
-        <Comparison
-          snapshot={snapshot}
-          evaluated={evaluated}
-          tunnelHistory={tunnelHistory}
-          colHistory={colHistory}
-          updatedLabel={updatedLabel}
-          source={source}
-          stale={stale}
-        />
+        <Comparison snapshot={snapshot} evaluated={evaluated} tunnelHistory={tunnelHistory} colHistory={colHistory} />
 
         <RouteMap evaluated={evaluated} />
 
