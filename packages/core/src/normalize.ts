@@ -36,6 +36,7 @@ export function normalize(
       baseMin: routes.tunnelBaseMin ?? BASE.tunnel,
       totalMin: routes.tunnelMin,
       detail: viasuisse.tunnel.detail,
+      polyline: routes.tunnelPolyline,
     },
     col: {
       state: viasuisse.col.state,
@@ -44,6 +45,7 @@ export function normalize(
       detail: viasuisse.col.detail,
       seasonal: viasuisse.col.seasonal,
       colStatus: viasuisse.col.colStatus ?? deriveColStatus(viasuisse.col.state),
+      polyline: routes.colPolyline,
     },
   };
 
@@ -54,6 +56,7 @@ export function normalize(
       totalMin: routes.gothardMin,
       detail: viasuisse.gothard.detail,
       detourMin: routes.gothardDetourMin,
+      polyline: routes.gothardPolyline,
     };
   }
 

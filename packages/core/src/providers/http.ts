@@ -114,7 +114,11 @@ export class RealRoutesProvider implements RoutesProvider {
    * free-flow times vary somewhat from BASE's idealized 8/34/42 figures even for the local
    * crossing, and would be way off for gothard's full-corridor scale, see types.ts RoutesRaw.
    */
-  private async computeMinutes(origin: LatLng, destination: LatLng, via?: LatLng): Promise<{ totalMin: number | null; baseMin: number | null }> {
+  private async computeMinutes(
+    origin: LatLng,
+    destination: LatLng,
+    via?: LatLng,
+  ): Promise<{ totalMin: number | null; baseMin: number | null; polyline: string | null }> {
     const body: Record<string, unknown> = {
       origin: { location: { latLng: origin } },
       destination: { location: { latLng: destination } },
@@ -130,18 +134,19 @@ export class RealRoutesProvider implements RoutesProvider {
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": this.config.apiKey,
-          "X-Goog-FieldMask": "routes.duration,routes.staticDuration",
+          "X-Goog-FieldMask": "routes.duration,routes.staticDuration,routes.polyline.encodedPolyline",
         },
         body: JSON.stringify(body),
       });
     } catch {
-      return { totalMin: null, baseMin: null }; // network failure — degrade this route only
+      return { totalMin: null, baseMin: null, polyline: null }; // network failure — degrade this route only
     }
-    if (!res.ok) return { totalMin: null, baseMin: null }; // e.g. NOT_FOUND/ZERO_RESULTS when a crossing is impassable
+    if (!res.ok) return { totalMin: null, baseMin: null, polyline: null }; // e.g. NOT_FOUND/ZERO_RESULTS when a crossing is impassable
     const data = await res.json().catch(() => null);
     return {
       totalMin: parseDurationMinutes(data?.routes?.[0]?.duration),
       baseMin: parseDurationMinutes(data?.routes?.[0]?.staticDuration),
+      polyline: data?.routes?.[0]?.polyline?.encodedPolyline ?? null,
     };
   }
 
@@ -165,6 +170,9 @@ export class RealRoutesProvider implements RoutesProvider {
       tunnelBaseMin: tunnel.baseMin ?? undefined,
       colBaseMin: col.baseMin ?? undefined,
       gothardBaseMin: gothard.baseMin ?? undefined,
+      tunnelPolyline: tunnel.polyline ?? undefined,
+      colPolyline: col.polyline ?? undefined,
+      gothardPolyline: gothard.polyline ?? undefined,
     };
   }
 }

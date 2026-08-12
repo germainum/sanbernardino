@@ -27,3 +27,32 @@ button {
     stroke-dashoffset: -15.1;
   }
 }
+
+/* RouteMap.tsx: durations match theme.ts's STATE.go/caution.spd (can't pass a dynamic
+   animation-duration through Leaflet's pathOptions, which has no generic style escape hatch). */
+.route-flow-go,
+.route-flow-caution {
+  stroke-dasharray: 0.1 15;
+  animation: flow linear infinite;
+}
+.route-flow-go {
+  animation-duration: 1.1s;
+}
+.route-flow-caution {
+  animation-duration: 2.4s;
+}
+
+.route-map-label {
+  background: #fff !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 8px rgba(24, 39, 28, 0.15) !important;
+  padding: 3px 10px !important;
+  font-family: "Nunito", sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #18271c;
+}
+.route-map-label::before {
+  display: none;
+}

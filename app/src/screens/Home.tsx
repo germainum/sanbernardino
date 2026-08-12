@@ -3,7 +3,7 @@ import { C } from "../theme";
 import { DirectionSwitch } from "../components/DirectionSwitch";
 import { Verdict } from "../components/Verdict";
 import { Comparison } from "../components/Comparison";
-import { AxisMap } from "../components/AxisMap";
+import { RouteMap } from "../components/RouteMap";
 import { GothardPanel } from "../components/GothardPanel";
 import { HistoryGraph } from "../components/HistoryGraph";
 import { ScenarioSwitcher } from "../components/ScenarioSwitcher";
@@ -75,7 +75,7 @@ export function Home({ onOpenSettings }: HomeProps) {
 
         <Comparison snapshot={snapshot} evaluated={evaluated} updatedLabel={updatedLabel} source={source} stale={stale} />
 
-        <AxisMap evaluated={evaluated} />
+        <RouteMap evaluated={evaluated} />
 
         {showGothard && snapshot.gothard && <GothardPanel gothard={snapshot.gothard} recommended={gothardRecommended} />}
 

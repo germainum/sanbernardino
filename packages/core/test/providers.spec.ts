@@ -90,9 +90,9 @@ describe("RealRoutesProvider", () => {
       const entry = callsByIndex[call];
       call += 1;
       if (entry === null) return new Response("not found", { status: 404 });
-      return new Response(JSON.stringify({ routes: [{ duration: `${entry.duration}s`, staticDuration: `${entry.staticDuration}s` }] }), {
-        status: 200,
-      });
+      const route = { duration: `${entry.duration}s`, staticDuration: `${entry.staticDuration}s` };
+      if (entry.polyline) route.polyline = { encodedPolyline: entry.polyline };
+      return new Response(JSON.stringify({ routes: [route] }), { status: 200 });
     };
   }
 
@@ -120,6 +120,25 @@ describe("RealRoutesProvider", () => {
     }
   });
 
+  it("extracts each route's encoded polyline, degrading to undefined when the response doesn't include one", async () => {
+    const { RealRoutesProvider } = await import("../src/providers/http.js");
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fakeFetch([
+      { duration: 4800, staticDuration: 4200, polyline: "abc123" },
+      { duration: 6000, staticDuration: 5400 }, // no polyline key on this one
+      { duration: 7200, staticDuration: 6600, polyline: "xyz789" },
+    ]);
+    try {
+      const routes = new RealRoutesProvider({ apiKey: "key" });
+      const raw = await routes.fetchGoogleRoutes("italie");
+      expect(raw.tunnelPolyline).toBe("abc123");
+      expect(raw.colPolyline).toBeUndefined();
+      expect(raw.gothardPolyline).toBe("xyz789");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it("degrades a single impassable route to null instead of failing the whole fetch", async () => {
     const { RealRoutesProvider } = await import("../src/providers/http.js");
     const originalFetch = globalThis.fetch;
@@ -131,6 +150,7 @@ describe("RealRoutesProvider", () => {
       expect(raw.tunnelMin).toBe(80);
       expect(raw.colMin).toBeNull();
       expect(raw.colBaseMin).toBeUndefined();
+      expect(raw.colPolyline).toBeUndefined();
       expect(raw.gothardMin).toBe(120);
       expect(raw.gothardDetourMin).toBe(40); // 120 - min(80) since col is null
     } finally {

@@ -23,6 +23,11 @@ export interface RouteInfo {
   detourMin?: number;
   /** Col only. See ColStatus. */
   colStatus?: ColStatus;
+  /** Google Routes' encoded polyline (standard "encoded polyline algorithm format",
+   * precision 1e5) for this route's real driving geometry. Decoded client-side — the
+   * compact encoded string is far smaller than a raw coordinate array over the wire.
+   * Undefined for mock/dev scenarios, which have no real routing data. */
+  polyline?: string;
 }
 
 export interface RoutesSnapshot {
@@ -91,4 +96,7 @@ export interface RoutesRaw {
   tunnelBaseMin?: number;
   colBaseMin?: number;
   gothardBaseMin?: number;
+  tunnelPolyline?: string;
+  colPolyline?: string;
+  gothardPolyline?: string;
 }
