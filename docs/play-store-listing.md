@@ -30,7 +30,7 @@ Google Maps te donne des temps de trajet. San Bernardino te donne une réponse :
 POURQUOI SAN BERNARDINO
 
 Sur cet axe alpin, la question n'est jamais "combien de minutes de retard ?" mais "par où je passe ?". San Bernardino combine :
-• L'état en temps réel du tunnel et du col (ouvert, bouchon, fermé), publié par l'Office fédéral des routes (OFROU)
+• L'état en temps réel du tunnel et du col (ouvert, bouchon, fermé), publié par l'Office fédéral des routes (OFROU) via sa plateforme de données ouvertes opentransportdata.swiss
 • Les temps de trajet réels, trafic inclus, calculés par Google Routes
 • Une logique de décision claire : le col ne vous est proposé que s'il est vraiment plus rapide ; le Gothard n'est recommandé que si l'A13 est saturé ET que la déviation fait réellement gagner du temps
 
@@ -51,9 +51,13 @@ GRATUIT, AVEC UNE PUBLICITÉ RAISONNÉE
 
 L'application reste gratuite grâce à une publicité discrète, jamais affichée près des éléments de décision (verdict, cartes d'itinéraire, changement de sens). Un achat unique permettra de la retirer entièrement.
 
-San Bernardino est un outil d'aide à la décision indépendant — toujours vérifier la signalisation routière officielle avant de s'engager sur l'axe.
+San Bernardino n'est ni un service officiel, ni affilié, géré ou approuvé par l'Office fédéral des routes (OFROU) ou toute autre autorité publique. C'est un outil d'aide à la décision indépendant, développé de façon indépendante — toujours vérifier la signalisation routière officielle avant de s'engager sur l'axe.
+
+Source officielle des données trafic : https://opentransportdata.swiss (Office fédéral des routes, OFROU). Temps de trajet : Google Routes.
 ```
-(~1,800 characters — well under the 4000 limit; room to expand with a "quoi de neuf" changelog per release)
+(~2,000 characters — well under the 4000 limit; room to expand with a "quoi de neuf" changelog per release)
+
+**Ajouté 2026-08-17** suite à un rejet Play Console ("Politique relative aux déclarations trompeuses — absence de lien vers la source pour les renseignements gouvernementaux") : le lien source explicite (opentransportdata.swiss) et la clause de non-affiliation gouvernementale ci-dessus doivent être présents mot pour mot dans la description publiée, pas seulement dans ce doc.
 
 ## Category & content rating
 

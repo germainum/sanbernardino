@@ -316,9 +316,15 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
         </SectionCard>
 
         <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.6, margin: "24px 0 0" }}>
-          Données trafic : Office fédéral des routes (OFROU) — Traffic Data Platform.
+          Données trafic : Office fédéral des routes (OFROU) via{" "}
+          <a href="https://opentransportdata.swiss" target="_blank" rel="noreferrer" style={{ color: C.muted }}>
+            opentransportdata.swiss
+          </a>
+          .
           <br />
           Temps de trajet : Google Routes.
+          <br />
+          San Bernardino n'est ni un service officiel ni affilié à l'OFROU ou à une autorité publique — outil indépendant, développé de façon indépendante.
         </p>
       </div>
     </div>
