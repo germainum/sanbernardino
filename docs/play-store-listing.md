@@ -2,6 +2,12 @@
 
 Draft copy, ready to paste into Play Console. Character counts are Play's hard limits — re-check in Console before submitting, since exact rendering can shift by a character or two.
 
+## Positioning (why the copy reads this way)
+
+Google Maps, Waze, and TCS Trafic Info all give you **data** — travel times, road status — and leave you to interpret it. San Bernardino gives you a **verdict**, using decision logic specific to this one corridor (the col is only ever proposed when it's genuinely faster; the Gothard detour only when the time actually saved outweighs the extra distance). That's the differentiator the copy leans on: not "another traffic app," but the one that decides instead of just informing.
+
+Three audiences, not one: the **transalpine commuter** (Chur↔Bellinzona/Chiasso, cares about reliability and vignette cost), the **occasional traveler** (ski season, summer holidays, doesn't know the corridor, wants reassurance), and the **professional driver** (cares about closures/chain requirements being accurate, not approximate). The feature list covers all three; the opening hook targets the shared pain point (having to interpret data yourself) rather than any one persona specifically.
+
 ## App name (30 char max)
 
 ```
@@ -12,14 +18,14 @@ San Bernardino : Trafic A13
 ## Short description (80 char max)
 
 ```
-Tunnel, col ou Gothard ? La meilleure décision pour l'A13, en un coup d'œil.
+Fini d'hésiter au col : l'app décide tunnel, col ou Gothard à ta place.
 ```
-(77 characters)
+(76 characters — leads with the pain point (hesitating), not the feature)
 
 ## Full description (4000 char max)
 
 ```
-San Bernardino ne se contente pas d'afficher des chiffres de trafic : elle décide. Tunnel, col, ou déviation par le Gothard — l'app vous dit en une phrase quel itinéraire prendre sur l'axe A13, dans les deux sens (Suisse ↔ Italie).
+Google Maps te donne des temps de trajet. San Bernardino te donne une réponse : tunnel, col, ou Gothard — en une phrase, avec la raison.
 
 POURQUOI SAN BERNARDINO
 
@@ -47,7 +53,7 @@ L'application reste gratuite grâce à une publicité discrète, jamais affiché
 
 San Bernardino est un outil d'aide à la décision indépendant — toujours vérifier la signalisation routière officielle avant de s'engager sur l'axe.
 ```
-(~1,900 characters — well under the 4000 limit; room to expand with a "quoi de neuf" changelog per release)
+(~1,800 characters — well under the 4000 limit; room to expand with a "quoi de neuf" changelog per release)
 
 ## Category & content rating
 
@@ -74,13 +80,15 @@ Reflects what's *actually* collected today. Real AdMob is live (not test IDs) in
 
 ## Screenshots
 
-Re-captured 2026-08-17 against the real production build (real Google Routes + real OFROU road status, real Windy webcam, not mock data) at 1082×3029 — meets Play's phone screenshot requirements as-is. The previous set (2026-08-10) predated the mustard palette pivot and the map/webcam/card redesign and would have shown a completely different-looking app, so it's been fully replaced rather than kept alongside:
+Upload in this order — Play's carousel shows the first 2-3 without swiping, so the strongest value-prop images lead, plain UI screenshots follow as proof:
 
-- `screenshots/home-italie.png` — home screen, "vers l'Italie" direction: hero, comparison cards, map, live webcam
-- `screenshots/home-suisse.png` — home screen, "vers la Suisse" direction
+1. `store-assets/promo-screenshots/promo-1-verdict.png` — "Pas une carte. Une décision." — the differentiator, up front.
+2. `store-assets/promo-screenshots/promo-2-alerts.png` — "Il surveille la route. Pas toi." — the emotional payoff (you stop having to check yourself). Illustrated notification stack, not a real capture — the actual Settings screen has too little visible content (no system permission UI in a static screenshot) to sell this feature on its own.
+3. `store-assets/promo-screenshots/promo-3-map-webcam.png` — real map + live col webcam together — proof the data is genuinely live, not a static estimate.
+4. `screenshots/home-italie.png` — plain app screenshot, "vers l'Italie" direction, no caption overlay.
+5. `screenshots/home-suisse.png` — plain app screenshot, "vers la Suisse" direction.
 
-Still optional (not blocking submission — Play's minimum is 2 screenshots):
-- A Settings screenshot — the notifications permission flow can't be exercised headlessly (no real Capacitor push bridge in a browser), so capture this one directly on a device instead.
+All from the real production build (real Google Routes + real OFROU road status + real Windy webcam, not mock data), 1080×1920 for the promo set and 1082×3029 for the plain pair — both meet Play's phone screenshot requirements as-is. Re-captured/re-composed 2026-08-17; the original 2026-08-10 set predated the mustard palette pivot and the map/webcam/card redesign entirely.
 
 Already on disk, current (regenerated 2026-08-12 for the mustard palette):
 - Feature graphic: `docs/store-assets/feature-graphic-1024x500.png`
