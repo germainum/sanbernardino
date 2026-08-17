@@ -34,8 +34,14 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Bundles native debug symbols straight into the App Bundle — no separate
+            // manual upload needed, unlike the ProGuard mapping file.
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
