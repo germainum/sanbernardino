@@ -7,3 +7,8 @@ export const SUPABASE_ANON_KEY: string = import.meta.env.VITE_SUPABASE_ANON_KEY 
 export const ADMOB_APP_ID: string | undefined = import.meta.env.VITE_ADMOB_APP_ID;
 export const ADMOB_BANNER_ID: string | undefined = import.meta.env.VITE_ADMOB_BANNER_ID;
 export const ADMOB_INTERSTITIAL_ID: string | undefined = import.meta.env.VITE_ADMOB_INTERSTITIAL_ID;
+
+// RevenueCat's public SDK key (Android), set only in .env.production — see RevenueCat.ts's
+// ensureConfigured(). Unset here -> remove_ads stays unavailable (offer is null, entitlement
+// checks are skipped) instead of crashing.
+export const REVENUECAT_API_KEY: string | undefined = import.meta.env.VITE_REVENUECAT_API_KEY;

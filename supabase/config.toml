@@ -388,8 +388,9 @@ deno_version = 2
 # poll is invoked by an external cron scheduler (pg_cron / a scheduled HTTP call), not by an
 # app client with a Supabase session — it authenticates via its own CRON_SECRET header
 # instead (backend-san-bernardino.md §6). The REST endpoints (state/history/devices/
-# planned-trips/iap-validate) keep the default verify_jwt = true, since the Capacitor app
-# calls them with the standard Supabase anon key.
+# planned-trips) keep the default verify_jwt = true, since the Capacitor app calls them with
+# the standard Supabase anon key. (remove_ads no longer has a server endpoint — RevenueCat's
+# SDK validates purchases directly against the Play Store, see app/src/iap/RevenueCat.ts.)
 [functions.poll]
 verify_jwt = false
 

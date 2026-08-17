@@ -6,10 +6,11 @@ import { serviceClient } from "../_shared/db.ts";
  * GET /api/devices/:id -> device row (Settings screen hydration; not in the original
  * backend-san-bernardino.md §4 table, added because Settings needs to read current prefs)
  * PATCH /api/devices/:id { prefs?, consent? } -> updated device row
- * per backend-san-bernardino.md §4. `remove_ads` is deliberately NOT settable here — only
- * /api/iap/validate can set it, after server-side Google Play receipt verification
- * (addendum-monetisation-san-bernardino.md §5) — a client PATCH can't grant itself the
- * ad-free entitlement.
+ * per backend-san-bernardino.md §4. `remove_ads` is deliberately NOT settable here — the
+ * remove_ads entitlement ended up being checked entirely client-side via the RevenueCat SDK
+ * (app/src/iap/RevenueCat.ts), which validates purchases against the Play Store itself, so
+ * this column is currently unused/always false. Kept rather than dropped in case a future
+ * need (analytics, support lookups) calls for syncing it via a RevenueCat webhook.
  */
 Deno.serve(async (req) => {
   const preflight = handleOptions(req);

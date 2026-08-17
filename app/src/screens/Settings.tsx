@@ -8,6 +8,7 @@ import {
   requestPushPermissionAndRegister,
 } from "../push/register";
 import { fetchDevice, schedulePlannedTrip, updateDevicePrefs, type DevicePrefs } from "../lib/deviceApi";
+import type { PurchaseOutcome, RemoveAdsOffer } from "../iap/RevenueCat";
 
 const TYPE_LABELS: Record<string, string> = {
   verdict: "Changement d'itinéraire recommandé",
@@ -46,9 +47,13 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 
 interface SettingsProps {
   onBack: () => void;
+  removeAds: boolean;
+  offer: RemoveAdsOffer | null;
+  onPurchase: () => Promise<PurchaseOutcome>;
+  onRestore: () => Promise<PurchaseOutcome>;
 }
 
-export function Settings({ onBack }: SettingsProps) {
+export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: SettingsProps) {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<DevicePrefs>(DEFAULT_PREFS);
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -57,6 +62,8 @@ export function Settings({ onBack }: SettingsProps) {
   const [tripDirection, setTripDirection] = useState<Direction>("italie");
   const [tripDepartAt, setTripDepartAt] = useState("");
   const [tripStatus, setTripStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [purchaseState, setPurchaseState] = useState<{ status: "idle" | "purchasing" | "error"; message?: string }>({ status: "idle" });
+  const [restoreState, setRestoreState] = useState<{ status: "idle" | "restoring" | "error"; message?: string }>({ status: "idle" });
 
   useEffect(() => {
     (async () => {
@@ -106,6 +113,18 @@ export function Settings({ onBack }: SettingsProps) {
 
   function toggleType(type: string) {
     void savePrefs({ ...prefs, types: { ...prefs.types, [type]: !prefs.types[type] } });
+  }
+
+  async function handlePurchase() {
+    setPurchaseState({ status: "purchasing" });
+    const outcome: PurchaseOutcome = await onPurchase();
+    setPurchaseState(outcome.status === "error" ? { status: "error", message: outcome.message } : { status: "idle" });
+  }
+
+  async function handleRestore() {
+    setRestoreState({ status: "restoring" });
+    const outcome: PurchaseOutcome = await onRestore();
+    setRestoreState(outcome.status === "error" ? { status: "error", message: outcome.message } : { status: "idle" });
   }
 
   async function handleSchedulePlannedTrip() {
@@ -254,6 +273,47 @@ export function Settings({ onBack }: SettingsProps) {
             )}
           </>
         )}
+
+        <SectionCard title="Publicité">
+          {removeAds ? (
+            <p style={{ fontSize: 14, color: C.successText, fontWeight: 700, margin: 0 }}>✓ Publicité supprimée sur cet appareil.</p>
+          ) : (
+            <>
+              <p style={{ fontSize: 14, lineHeight: 1.5, margin: "0 0 14px", color: C.ink }}>
+                Retire la bannière et les publicités entre les écrans, définitivement.
+              </p>
+              <button
+                onClick={handlePurchase}
+                disabled={!offer || purchaseState.status === "purchasing"}
+                style={{
+                  width: "100%",
+                  padding: "12px 0",
+                  borderRadius: 999,
+                  background: offer ? C.mustard : C.line,
+                  color: offer ? C.ink : C.muted,
+                  fontWeight: 800,
+                  fontSize: 14,
+                  marginBottom: 10,
+                }}
+              >
+                {purchaseState.status === "purchasing"
+                  ? "Achat en cours…"
+                  : offer
+                    ? `Supprimer la pub — ${offer.priceString}`
+                    : "Indisponible pour le moment"}
+              </button>
+              <button
+                onClick={handleRestore}
+                disabled={restoreState.status === "restoring"}
+                style={{ width: "100%", padding: "10px 0", borderRadius: 999, background: "transparent", color: C.muted, fontWeight: 700, fontSize: 13 }}
+              >
+                {restoreState.status === "restoring" ? "Restauration…" : "Restaurer mes achats"}
+              </button>
+            </>
+          )}
+          {purchaseState.status === "error" && <p style={{ fontSize: 12, color: C.coralDeep, margin: "8px 0 0" }}>{purchaseState.message}</p>}
+          {restoreState.status === "error" && <p style={{ fontSize: 12, color: C.coralDeep, margin: "8px 0 0" }}>{restoreState.message}</p>}
+        </SectionCard>
 
         <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.6, margin: "24px 0 0" }}>
           Données trafic : Office fédéral des routes (OFROU) — Traffic Data Platform.

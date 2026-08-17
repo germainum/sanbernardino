@@ -18,6 +18,7 @@
     "@capacitor/core": "^8.5.0",
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/push-notifications": "^8.1.2",
+    "@revenuecat/purchases-capacitor": "^13.4.0",
     "@san-bernardino/core": "*",
     "leaflet": "^1.9.4",
     "react": "^19.2.8",

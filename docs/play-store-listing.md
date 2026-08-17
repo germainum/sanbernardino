@@ -63,16 +63,17 @@ San Bernardino est un outil d'aide à la décision indépendant — toujours vé
 
 ## Data safety form (Play Console → App content → Data safety)
 
-Reflects what's *actually* collected today. Real AdMob is live (not test IDs) in the release build, so **Advertising ID** is now required — update this section again once Play Billing ships (adds "Purchase history").
+Reflects what's *actually* collected today. Real AdMob is live (not test IDs) in the release build, so **Advertising ID** is required. The `remove_ads` one-time purchase now ships via RevenueCat (client-side entitlement check against the Play Store — see `app/src/iap/RevenueCat.ts`), so **Purchase history** is required too.
 
 | Data type | Collected? | Purpose | Shared with |
 |---|---|---|---|
 | Device or other IDs (push token) | Yes | App functionality (push notifications) | Google (Firebase Cloud Messaging) |
 | Advertising ID | Yes | Advertising, analytics | Google (AdMob) |
 | App activity (notification preferences) | Yes | App functionality | Not shared |
+| Purchase history | Yes | App functionality (unlocking the ad-free purchase) | RevenueCat |
 | Approximate or precise location | No | — | — |
 | Personal info (name, email, etc.) | No | — | — |
-| Financial info | No (not yet — add once Play Billing is live) | — | — |
+| Financial info (card numbers, bank details) | No | — | — |
 
 - **Is data encrypted in transit?** Yes (HTTPS everywhere).
 - **Can users request data deletion?** Yes — uninstalling clears future processing; the privacy policy's contact address handles manual requests for anything already stored.
