@@ -33,8 +33,9 @@ L'app affiche sa recommandation en un coup d'œil — tunnel, col, Gothard, ou "
 FONCTIONNALITÉS
 
 • Verdict instantané pour les deux sens de circulation
-• Carte animée de l'axe, état du tunnel et du col
-• Historique des retards sur 3 heures
+• Carte interactive de l'axe A13 avec les tracés du tunnel et du col
+• Webcam en direct du col, pour voir les conditions réelles sur place
+• Comparatif tunnel/col en un coup d'œil : coût (vignette ou gratuit), distance, altitude, tendance de retard
 • Plan B Gothard : affiché seulement quand il est réellement utile
 • Notifications : ouverture du col, fermeture du tunnel, bouchon en formation, itinéraire qui change — configurables (directions suivies, types d'alerte, seuil de bouchon, heures silencieuses)
 • Rappel de trajet planifié (T-30 minutes avant un départ programmé)
@@ -42,11 +43,11 @@ FONCTIONNALITÉS
 
 GRATUIT, AVEC UNE PUBLICITÉ RAISONNÉE
 
-L'application reste gratuite grâce à une publicité discrète, jamais affichée près des éléments de décision (verdict, cartes d'itinéraire, changement de sens). Un achat unique permet de la retirer entièrement.
+L'application reste gratuite grâce à une publicité discrète, jamais affichée près des éléments de décision (verdict, cartes d'itinéraire, changement de sens). Un achat unique permettra de la retirer entièrement.
 
 San Bernardino est un outil d'aide à la décision indépendant — toujours vérifier la signalisation routière officielle avant de s'engager sur l'axe.
 ```
-(1,847 characters — well under the 4000 limit; room to expand with a "quoi de neuf" changelog per release)
+(~1,900 characters — well under the 4000 limit; room to expand with a "quoi de neuf" changelog per release)
 
 ## Category & content rating
 
@@ -56,11 +57,12 @@ San Bernardino est un outil d'aide à la décision indépendant — toujours vé
 
 ## Data safety form (Play Console → App content → Data safety)
 
-Reflects what's *actually* collected today — update this section again once real AdMob/Play Billing go live (they add "Advertising ID" and "Purchase history" respectively).
+Reflects what's *actually* collected today. Real AdMob is live (not test IDs) in the release build, so **Advertising ID** is now required — update this section again once Play Billing ships (adds "Purchase history").
 
 | Data type | Collected? | Purpose | Shared with |
 |---|---|---|---|
 | Device or other IDs (push token) | Yes | App functionality (push notifications) | Google (Firebase Cloud Messaging) |
+| Advertising ID | Yes | Advertising, analytics | Google (AdMob) |
 | App activity (notification preferences) | Yes | App functionality | Not shared |
 | Approximate or precise location | No | — | — |
 | Personal info (name, email, etc.) | No | — | — |
@@ -72,12 +74,14 @@ Reflects what's *actually* collected today — update this section again once re
 
 ## Screenshots
 
-Captured 2026-08-10 against the real production build (real Google Routes + real OFROU road status, not mock data) at 1080×2400 — meets Play's phone screenshot requirements as-is:
+Re-captured 2026-08-17 against the real production build (real Google Routes + real OFROU road status, real Windy webcam, not mock data) at 1082×3029 — meets Play's phone screenshot requirements as-is. The previous set (2026-08-10) predated the mustard palette pivot and the map/webcam/card redesign and would have shown a completely different-looking app, so it's been fully replaced rather than kept alongside:
 
-- `screenshots/home-italie.png` — home screen, "vers l'Italie" direction, tunnel recommended
+- `screenshots/home-italie.png` — home screen, "vers l'Italie" direction: hero, comparison cards, map, live webcam
 - `screenshots/home-suisse.png` — home screen, "vers la Suisse" direction
 
-Still needed (not yet produced):
+Still optional (not blocking submission — Play's minimum is 2 screenshots):
 - A Settings screenshot — the notifications permission flow can't be exercised headlessly (no real Capacitor push bridge in a browser), so capture this one directly on a device instead.
-- Feature graphic: 1024×500px.
-- App icon: 512×512px (already exists as the Capacitor launcher icon — export at the required resolution).
+
+Already on disk, current (regenerated 2026-08-12 for the mustard palette):
+- Feature graphic: `docs/store-assets/feature-graphic-1024x500.png`
+- App icon: `docs/store-assets/icon-512.png`
