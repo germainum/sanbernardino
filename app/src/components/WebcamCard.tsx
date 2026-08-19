@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { C } from "../theme";
 import { API_BASE } from "../lib/env";
 import { authHeaders } from "../lib/api";
+import { useLang } from "../i18n";
 
 // Found via GET {API_BASE}/webcam?nearby=46.492,9.190,20&include=location (col landmark
 // 46.492,9.190; tunnel portal ~46.497,9.172 — no tunnel-side camera was even in the result
@@ -40,7 +41,9 @@ function imageUrlFrom(data: WindyWebcamResponse): string | null {
   return data.images?.current?.preview ?? data.images?.current?.thumbnail ?? null;
 }
 
-export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BASE}/webcam`, title = "Webcam · Col du San Bernardino" }: WebcamCardProps) {
+export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BASE}/webcam`, title }: WebcamCardProps) {
+  const { t } = useLang();
+  const displayTitle = title ?? t.webcam.defaultTitle;
   const [state, setState] = useState<WebcamState>({ kind: "loading" });
   const retriedAuthRef = useRef(false);
   const retriedImageRef = useRef(false);
@@ -57,7 +60,7 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
           return;
         }
         if (!res.ok) {
-          setState({ kind: "error", message: `Webcam indisponible (${res.status})` });
+          setState({ kind: "error", message: t.webcam.unavailable(res.status) });
           return;
         }
         retriedAuthRef.current = false;
@@ -69,16 +72,16 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
         }
         const imageUrl = imageUrlFrom(data);
         if (!imageUrl) {
-          setState({ kind: "error", message: "Image indisponible" });
+          setState({ kind: "error", message: t.webcam.imageUnavailable });
           return;
         }
         retriedImageRef.current = false;
         setState({ kind: "live", imageUrl, title: data.title });
       } catch {
-        setState({ kind: "error", message: "Connexion impossible" });
+        setState({ kind: "error", message: t.webcam.connectionFailed });
       }
     },
-    [proxyUrl, webcamId],
+    [proxyUrl, webcamId, t],
   );
 
   useEffect(() => {
@@ -93,7 +96,7 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
       retriedImageRef.current = true;
       load();
     } else {
-      setState({ kind: "error", message: "Image indisponible" });
+      setState({ kind: "error", message: t.webcam.imageUnavailable });
     }
   }
 
@@ -106,13 +109,13 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
         .webcam-retry:focus-visible { outline: 2px solid ${C.mustard}; outline-offset: 2px; }
       `}</style>
 
-      <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, marginBottom: 10 }}>{title}</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, marginBottom: 10 }}>{displayTitle}</div>
 
       {state.kind === "loading" && (
         <div
           className="webcam-shimmer"
           role="status"
-          aria-label="Chargement de la webcam"
+          aria-label={t.webcam.loadingLabel}
           style={{
             height: 180,
             borderRadius: 14,
@@ -139,7 +142,7 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
           <span aria-hidden="true" style={{ fontSize: 22 }}>
             📷
           </span>
-          <span style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>Webcam hors ligne</span>
+          <span style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>{t.webcam.offlineLabel}</span>
         </div>
       )}
 
@@ -164,7 +167,7 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
             onClick={() => load()}
             style={{ fontSize: 13, fontWeight: 700, color: C.ink, background: C.mustard, borderRadius: 999, padding: "8px 16px" }}
           >
-            Réessayer
+            {t.webcam.retry}
           </button>
         </div>
       )}
@@ -174,7 +177,7 @@ export function WebcamCard({ webcamId = DEFAULT_WEBCAM_ID, proxyUrl = `${API_BAS
           <img
             src={state.imageUrl}
             onError={handleImageError}
-            alt={`Vue webcam en direct — ${state.title ?? "col du San Bernardino"}`}
+            alt={t.webcam.altText(state.title ?? displayTitle)}
             style={{ width: "100%", height: 180, objectFit: "cover", borderRadius: 14, display: "block" }}
           />
           <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600, marginTop: 6, textAlign: "right" }}>© Windy.com</div>

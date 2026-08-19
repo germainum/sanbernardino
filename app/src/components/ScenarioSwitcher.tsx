@@ -1,17 +1,21 @@
 import { SCENARIOS } from "@san-bernardino/core";
 import { C } from "../theme";
 import type { ScenarioKey } from "../hooks/useSnapshot";
+import { useLang } from "../i18n";
 
 interface ScenarioSwitcherProps {
   value: ScenarioKey;
   onChange: (key: ScenarioKey) => void;
 }
 
-/** Dev-only tool for manually exercising the 6 known traffic scenarios; not shown in production. */
+/** Dev-only tool for manually exercising the 6 known traffic scenarios; not shown in
+ * production. Scenario labels themselves come from packages/core and stay French — a
+ * developer-only surface, out of scope for the user-facing language switcher. */
 export function ScenarioSwitcher({ value, onChange }: ScenarioSwitcherProps) {
+  const { t } = useLang();
   return (
     <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 16 }}>
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", color: C.muted, marginBottom: 10 }}>TESTER UNE SITUATION</div>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", color: C.muted, marginBottom: 10 }}>{t.scenarioSwitcher.label}</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {Object.entries(SCENARIOS).map(([key, scenario]) => {
           const on = value === key;

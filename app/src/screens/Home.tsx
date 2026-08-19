@@ -8,12 +8,14 @@ import { GothardPanel } from "../components/GothardPanel";
 import { ScenarioSwitcher } from "../components/ScenarioSwitcher";
 import { Skeleton } from "../components/Skeleton";
 import { WebcamCard } from "../components/WebcamCard";
+import { LANGS, useLang } from "../i18n";
 
 interface HomeProps {
   onOpenSettings: () => void;
 }
 
 export function Home({ onOpenSettings }: HomeProps) {
+  const { lang, setLang, t } = useLang();
   const { status, isOffline, scenarioKey, setScenarioKey, direction, setDirection, snapshot, evaluated, tunnelHistory, colHistory, updatedLabel, source, stale } =
     useSnapshot();
 
@@ -29,13 +31,34 @@ export function Home({ onOpenSettings }: HomeProps) {
       <div style={{ maxWidth: 440, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
           <div>
-            <div style={{ fontSize: 12, color: C.muted, fontWeight: 700, letterSpacing: "0.04em" }}>PASSAGE ALPIN</div>
+            <div style={{ fontSize: 12, color: C.muted, fontWeight: 700, letterSpacing: "0.04em" }}>{t.home.eyebrow}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, lineHeight: 1.1 }}>San Bernardino</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
+              onClick={() => setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length])}
+              aria-label={t.common.language}
+              title={t.common.language}
+              style={{
+                height: 42,
+                minWidth: 42,
+                padding: "0 10px",
+                borderRadius: 999,
+                background: C.card,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 13,
+                fontWeight: 800,
+                color: C.ink,
+                boxShadow: C.shadowChip,
+              }}
+            >
+              {lang.toUpperCase()}
+            </button>
+            <button
               onClick={onOpenSettings}
-              aria-label="Réglages"
+              aria-label={t.common.settingsAriaLabel}
               style={{ width: 42, height: 42, borderRadius: "50%", background: C.card, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: C.shadowChip }}
             >
               <span aria-hidden="true">⚙</span>
@@ -58,7 +81,7 @@ export function Home({ onOpenSettings }: HomeProps) {
               fontWeight: 700,
             }}
           >
-            Hors ligne — dernier état connu affiché ci-dessous
+            {t.home.offline}
           </div>
         )}
 

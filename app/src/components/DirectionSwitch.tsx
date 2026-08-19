@@ -1,10 +1,6 @@
 import type { Direction } from "@san-bernardino/core";
 import { C } from "../theme";
-
-const OPTIONS: Array<{ id: Direction; label: string }> = [
-  { id: "suisse", label: "Vers la Suisse" },
-  { id: "italie", label: "Vers l'Italie" },
-];
+import { useLang } from "../i18n";
 
 interface DirectionSwitchProps {
   direction: Direction;
@@ -12,9 +8,14 @@ interface DirectionSwitchProps {
 }
 
 export function DirectionSwitch({ direction, onChange }: DirectionSwitchProps) {
+  const { t } = useLang();
+  const options: Array<{ id: Direction; label: string }> = [
+    { id: "suisse", label: t.directionSwitch.toSwitzerland },
+    { id: "italie", label: t.directionSwitch.toItaly },
+  ];
   return (
-    <div role="group" aria-label="Direction" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-      {OPTIONS.map((o) => {
+    <div role="group" aria-label={t.directionSwitch.ariaLabel} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      {options.map((o) => {
         const on = direction === o.id;
         return (
           <button

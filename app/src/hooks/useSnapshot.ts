@@ -12,6 +12,7 @@ import { DATA_SOURCE } from "../lib/env";
 import { fetchHistory, fetchState, toEvaluatedSnapshot } from "../lib/api";
 import { formatUpdatedLabel, isStale } from "../lib/format";
 import { listenForDeeplinks } from "../push/register";
+import { useLang } from "../i18n";
 
 export type { ScenarioKey };
 
@@ -53,6 +54,7 @@ function saveLastKnown(direction: Direction, value: LastKnown) {
  * NetworkFirst cache (vite.config.ts) covers the same need at the HTTP layer.
  */
 export function useSnapshot() {
+  const { t } = useLang();
   const [scenarioKey, setScenarioKey] = useState<ScenarioKey>("bouchon");
   const [direction, setDirection] = useState<Direction>("italie");
   const [apiData, setApiData] = useState<LastKnown | null>(() => (DATA_SOURCE === "api" ? loadLastKnown(direction) : null));
@@ -116,8 +118,8 @@ export function useSnapshot() {
       evaluated: mockEvaluated,
       tunnelHistory: SCENARIO_HISTORY[scenarioKey].tunnel,
       colHistory: SCENARIO_HISTORY[scenarioKey].col,
-      updatedLabel: "Mis à jour il y a 2 min",
-      source: "OFROU (simulé)",
+      updatedLabel: t.format.updatedMinutesAgo(2),
+      source: t.source.simulated,
       stale: false,
     };
   }
@@ -133,8 +135,8 @@ export function useSnapshot() {
     evaluated: apiData?.evaluated,
     tunnelHistory: apiData?.tunnelHistory ?? [],
     colHistory: apiData?.colHistory ?? [],
-    updatedLabel: apiData ? formatUpdatedLabel(apiData.evaluated.snapshot.updatedAt) : "",
-    source: isOffline ? "Hors ligne · dernier état connu" : "OFROU",
+    updatedLabel: apiData ? formatUpdatedLabel(apiData.evaluated.snapshot.updatedAt, t) : "",
+    source: isOffline ? t.source.offline : t.source.live,
     stale: apiData ? isStale(apiData.evaluated.snapshot.updatedAt) : false,
   };
 }

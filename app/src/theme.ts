@@ -66,11 +66,13 @@ export function barColor(delayMin: number): string {
   return delayMin <= 5 ? C.successText : delayMin < 40 ? C.amber : C.coral;
 }
 
+// Styling only — the title/chip text itself is translated, see app/src/i18n/*.ts's
+// `verdict.title`/`verdict.chip`.
 export const VERDICT_META = {
-  tunnel: { title: "Prends le tunnel", chip: "Recommandé", chipBg: C.mustard, chipInk: C.ink },
-  col: { title: "Prends le col", chip: "Recommandé", chipBg: C.mustard, chipInk: C.ink },
-  gothard: { title: "Passe par le Gothard", chip: "Déviation", chipBg: C.amber, chipInk: "#3d2a06" },
+  tunnel: { chipBg: C.mustard, chipInk: C.ink },
+  col: { chipBg: C.mustard, chipInk: C.ink },
+  gothard: { chipBg: C.amber, chipInk: "#3d2a06" },
   // chipInk was "#fff" — white on the light `coral` bg only reached ~3.3:1, under 4.5:1 at
   // this chip's 12px/800 weight (not "large text" by WCAG's own size threshold). C.ink passes.
-  attente: { title: "Mieux vaut patienter", chip: "Rien de plus rapide", chipBg: C.coral, chipInk: C.ink },
+  attente: { chipBg: C.coral, chipInk: C.ink },
 } as const;

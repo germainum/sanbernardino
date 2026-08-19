@@ -3,14 +3,15 @@ import { deriveColStatus } from "@san-bernardino/core";
 import { C } from "../theme";
 import { RouteCard } from "./RouteCard";
 import { closedColMessage } from "../lib/comparison";
+import { useLang } from "../i18n";
 
 type ComparedRoute = "tunnel" | "col";
 
-/** Physical/policy facts, not live data — duplicated here (not threaded from Home.tsx) so
- * this component stays self-contained. Vignette price is the real fixed annual Swiss rate. */
-const ROUTE_META: Record<ComparedRoute, { distanceKm: number | null; altitudeM: number | null; cost: string }> = {
-  tunnel: { distanceKm: 6.6, altitudeM: null, cost: "Vignette · CHF 40/an" },
-  col: { distanceKm: null, altitudeM: 2065, cost: "Gratuit" },
+/** Physical facts, not live data — duplicated here (not threaded from Home.tsx) so this
+ * component stays self-contained. Vignette price is the real fixed annual Swiss rate. */
+const ROUTE_META: Record<ComparedRoute, { distanceKm: number | null; altitudeM: number | null }> = {
+  tunnel: { distanceKm: 6.6, altitudeM: null },
+  col: { distanceKm: null, altitudeM: 2065 },
 };
 
 interface ComparisonProps {
@@ -21,6 +22,7 @@ interface ComparisonProps {
 }
 
 export function Comparison({ snapshot, evaluated, tunnelHistory, colHistory }: ComparisonProps) {
+  const { t } = useLang();
   const colStatus = snapshot.col.colStatus ?? deriveColStatus(snapshot.col.state);
 
   if (colStatus === "closed") {
@@ -28,13 +30,13 @@ export function Comparison({ snapshot, evaluated, tunnelHistory, colHistory }: C
       <div style={{ marginBottom: 16 }}>
         <RouteCard
           route="tunnel"
-          name="Tunnel"
+          name={t.common.tunnel}
           data={snapshot.tunnel}
           delay={evaluated.delays.tunnel ?? null}
           recommended
           distanceKm={ROUTE_META.tunnel.distanceKm}
           altitudeM={ROUTE_META.tunnel.altitudeM}
-          cost={ROUTE_META.tunnel.cost}
+          cost={t.comparison.costVignette}
           history={tunnelHistory}
         />
         <div
@@ -49,7 +51,8 @@ export function Comparison({ snapshot, evaluated, tunnelHistory, colHistory }: C
           }}
         >
           <span aria-hidden="true">🚫 </span>
-          Col fermé — {closedColMessage(snapshot.col)}
+          {t.comparison.colClosedPrefix}
+          {closedColMessage(snapshot.col, t)}
         </div>
       </div>
     );
@@ -59,24 +62,24 @@ export function Comparison({ snapshot, evaluated, tunnelHistory, colHistory }: C
     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, marginBottom: 16, alignItems: "stretch" }}>
       <RouteCard
         route="tunnel"
-        name="Tunnel"
+        name={t.common.tunnel}
         data={snapshot.tunnel}
         delay={evaluated.delays.tunnel ?? null}
         recommended={evaluated.verdict === "tunnel"}
         distanceKm={ROUTE_META.tunnel.distanceKm}
         altitudeM={ROUTE_META.tunnel.altitudeM}
-        cost={ROUTE_META.tunnel.cost}
+        cost={t.comparison.costVignette}
         history={tunnelHistory}
       />
       <RouteCard
         route="col"
-        name="Col"
+        name={t.common.col}
         data={snapshot.col}
         delay={evaluated.delays.col ?? null}
         recommended={evaluated.verdict === "col"}
         distanceKm={ROUTE_META.col.distanceKm}
         altitudeM={ROUTE_META.col.altitudeM}
-        cost={ROUTE_META.col.cost}
+        cost={t.comparison.costFree}
         history={colHistory}
       />
     </div>

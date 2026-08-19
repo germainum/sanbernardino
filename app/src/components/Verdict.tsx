@@ -3,11 +3,7 @@ import { deriveColStatus } from "@san-bernardino/core";
 import { C, VERDICT_META } from "../theme";
 import { StatusLine } from "./StatusLine";
 import { axisConditionWord, computeGapMin } from "../lib/comparison";
-
-const DIRECTION_ROUTE_LABELS: Record<Direction, { from: string; to: string }> = {
-  italie: { from: "Coire / Zurich", to: "Bellinzone / Italie" },
-  suisse: { from: "Bellinzone / Italie", to: "Coire / Zurich" },
-};
+import { useLang, type Dictionary } from "../i18n";
 
 /**
  * Hero-only sentence, deliberately independent of decide()'s `reason` text (which stays
@@ -16,24 +12,20 @@ const DIRECTION_ROUTE_LABELS: Record<Direction, { from: string; to: string }> = 
  * as redundant, and "un peu plus rapide" undercuts the badge's decisive tone right next to
  * it. No numbers here on purpose — the badge is the only place the gap appears.
  */
-function heroSentence(evaluated: EvaluatedSnapshot): string {
+function heroSentence(evaluated: EvaluatedSnapshot, t: Dictionary): string {
   const { snapshot, verdict } = evaluated;
-  const condition = axisConditionWord(evaluated);
+  const condition = axisConditionWord(evaluated, t);
 
   if (verdict === "tunnel") {
-    return snapshot.col.state === "stop"
-      ? `${condition}. Le col est fermé de toute façon.`
-      : `${condition}. Le col reste ouvert si tu préfères le panorama.`;
+    return `${condition}. ${snapshot.col.state === "stop" ? t.verdict.heroTunnelColClosed : t.verdict.heroTunnelColOpen}`;
   }
   if (verdict === "col") {
-    return snapshot.tunnel.state === "stop"
-      ? `${condition}. Le tunnel est fermé de toute façon.`
-      : `${condition}. Le tunnel reste une option fiable, mais payante.`;
+    return `${condition}. ${snapshot.tunnel.state === "stop" ? t.verdict.heroColTunnelClosed : t.verdict.heroColTunnelOpen}`;
   }
   if (verdict === "gothard") {
-    return `${condition}. Le Gothard permet de contourner le blocage.`;
+    return `${condition}. ${t.verdict.heroGothard}`;
   }
-  return `${condition}. Aucune alternative ne fait gagner de temps pour l'instant.`;
+  return `${condition}. ${t.verdict.heroAttente}`;
 }
 
 interface VerdictProps {
@@ -45,9 +37,10 @@ interface VerdictProps {
 }
 
 export function Verdict({ direction, evaluated, updatedLabel, source, stale }: VerdictProps) {
+  const { t } = useLang();
   const { snapshot, verdict } = evaluated;
   const v = VERDICT_META[verdict];
-  const { from, to } = DIRECTION_ROUTE_LABELS[direction];
+  const { from, to } = t.verdict.route[direction];
   const gap = computeGapMin(snapshot, verdict);
   const colStatus = snapshot.col.colStatus ?? deriveColStatus(snapshot.col.state);
 
@@ -81,20 +74,20 @@ export function Verdict({ direction, evaluated, updatedLabel, source, stale }: V
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{to}</span>
         </div>
 
-        <StatusLine colStatus={colStatus} conditionWord={axisConditionWord(evaluated)} updatedLabel={updatedLabel} source={source} stale={stale} />
+        <StatusLine colStatus={colStatus} conditionWord={axisConditionWord(evaluated, t)} updatedLabel={updatedLabel} source={source} stale={stale} />
 
         <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: 999, background: v.chipBg, color: v.chipInk, fontSize: 12, fontWeight: 800, marginBottom: 12 }}>
-          {v.chip}
+          {t.verdict.chip[verdict]}
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff", lineHeight: 1.05 }}>{v.title}</h1>
+          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#fff", lineHeight: 1.05 }}>{t.verdict.title[verdict]}</h1>
           {gap != null && (
             <span style={{ fontSize: 20, fontWeight: 800, color: C.mustard }}>
-              -{gap} <span style={{ fontSize: 14, fontWeight: 700 }}>min</span>
+              -{gap} <span style={{ fontSize: 14, fontWeight: 700 }}>{t.common.min}</span>
             </span>
           )}
         </div>
-        <p style={{ margin: "12px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>{heroSentence(evaluated)}</p>
+        <p style={{ margin: "12px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>{heroSentence(evaluated, t)}</p>
       </div>
     </div>
   );

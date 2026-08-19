@@ -1,5 +1,6 @@
-import type { RouteInfo, RouteState } from "@san-bernardino/core";
+import type { RouteInfo } from "@san-bernardino/core";
 import { C, STATE } from "../theme";
+import { useLang, type Dictionary } from "../i18n";
 
 type ComparedRoute = "tunnel" | "col";
 
@@ -15,14 +16,8 @@ interface RouteCardProps {
   history: number[];
 }
 
-// Fixed identity traits — not "whichever is currently faster": the tunnel bypasses the
-// pass entirely, so it's structurally the quicker option regardless of today's traffic.
-const TRAIT: Record<ComparedRoute, string> = { tunnel: "Plus rapide", col: "Panoramique" };
-
 // Below this, "24 + 2 = 26" just restates the total and reads as stating the obvious.
 const BREAKDOWN_THRESHOLD_MIN = 5;
-
-const COL_STATE_LABEL: Record<RouteState, string> = { go: "Ouvert", caution: "Restreint", stop: "Fermé" };
 
 function TunnelIcon({ color }: { color: string }) {
   return (
@@ -51,11 +46,11 @@ function FactRow({ icon, label }: { icon: string; label: string }) {
 
 /** Compares the window's endpoints rather than point-to-point, so a single noisy reading
  * doesn't flip the label — a small dead zone (±3 min) keeps genuinely flat series "stable". */
-function trendLabel(history: number[]): string {
+function trendLabel(history: number[], t: Dictionary): string {
   const diff = history[history.length - 1] - history[0];
-  if (diff > 3) return "s'aggrave";
-  if (diff < -3) return "se dégage";
-  return "stable";
+  if (diff > 3) return t.routeCard.trendWorse;
+  if (diff < -3) return t.routeCard.trendBetter;
+  return t.routeCard.trendStable;
 }
 
 /** Compact sparkline (no axes/labels — "maintenant + tendance" carries the meaning, not a
@@ -81,6 +76,7 @@ function Sparkline({ history, color }: { history: number[]; color: string }) {
 }
 
 export function RouteCard({ route, name, data, delay, recommended, distanceKm, altitudeM, cost, history }: RouteCardProps) {
+  const { t } = useLang();
   const st = STATE[data.state];
   // Tunnel/col share most of the same trip, so a nonzero numeric delay often just reflects
   // shared-highway traffic, not a problem specific to this crossing — only tint/attribute the
@@ -133,7 +129,7 @@ export function RouteCard({ route, name, data, delay, recommended, distanceKm, a
         {data.totalMin != null ? (
           <>
             {data.totalMin}
-            <span style={{ fontSize: 11, fontWeight: 700 }}> min</span>
+            <span style={{ fontSize: 11, fontWeight: 700 }}> {t.common.min}</span>
           </>
         ) : (
           "—"
@@ -141,12 +137,12 @@ export function RouteCard({ route, name, data, delay, recommended, distanceKm, a
       </div>
       {showBreakdown && (
         <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginTop: 2 }}>
-          {data.baseMin} + {delay} = {data.totalMin ?? "—"} min
+          {data.baseMin} + {delay} = {data.totalMin ?? "—"} {t.common.min}
         </div>
       )}
 
       <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 5 }}>
-        <FactRow icon="✓" label={TRAIT[route]} />
+        <FactRow icon="✓" label={t.routeCard.trait[route]} />
         <FactRow icon={route === "tunnel" ? "🎫" : "🆓"} label={cost} />
         <FactRow icon={route === "tunnel" ? "📏" : "⛰"} label={route === "tunnel" ? `${distanceKm} km` : `${altitudeM} m`} />
       </div>
@@ -155,16 +151,16 @@ export function RouteCard({ route, name, data, delay, recommended, distanceKm, a
         {route === "tunnel" ? (
           <>
             <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 700 }}>
-              Retard {delay != null ? `+${delay} min` : "—"} · {trendLabel(history)}
+              {t.routeCard.delay} {delay != null ? `+${delay} ${t.common.min}` : "—"} · {trendLabel(history, t)}
             </div>
             {history.length > 1 && <Sparkline history={history} color={st.color} />}
           </>
         ) : (
           <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 700 }}>
             {/* The real OFROU detail text already self-describes openness (e.g. "Ouvert ·
-                route sèche"), so prepending COL_STATE_LABEL too would repeat the word —
+                route sèche"), so prepending the state label too would repeat the word —
                 only fall back to it when there's no detail text to show. */}
-            État : {data.detail || COL_STATE_LABEL[data.state]}
+            {t.routeCard.stateLabel} : {data.detail || t.routeCard.colState[data.state]}
           </div>
         )}
       </div>

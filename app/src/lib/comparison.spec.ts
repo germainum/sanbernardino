@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { EvaluatedSnapshot, RoutesSnapshot } from "@san-bernardino/core";
 import { axisConditionWord, closedColMessage, computeGapMin } from "./comparison";
+import { fr } from "../i18n/fr";
 
 function snapshot(overrides: Partial<RoutesSnapshot> = {}): RoutesSnapshot {
   return {
@@ -42,25 +43,25 @@ describe("axisConditionWord", () => {
   }
 
   it("says saturated when the whole axis is blocked", () => {
-    expect(axisConditionWord(evaluated({ saturated: true }))).toBe("Axe saturé");
+    expect(axisConditionWord(evaluated({ saturated: true }), fr)).toBe("Axe saturé");
   });
 
   it("says fluide when both routes are go", () => {
-    expect(axisConditionWord(evaluated())).toBe("Trafic fluide");
+    expect(axisConditionWord(evaluated(), fr)).toBe("Trafic fluide");
   });
 
   it("says chargé when either route has an issue, without naming which one", () => {
     const withIssue = evaluated({ snapshot: snapshot({ tunnel: { state: "caution", baseMin: 8, totalMin: 40 } }) });
-    expect(axisConditionWord(withIssue)).toBe("Trafic chargé");
+    expect(axisConditionWord(withIssue, fr)).toBe("Trafic chargé");
   });
 });
 
 describe("closedColMessage", () => {
   it("uses the real feed detail when present", () => {
-    expect(closedColMessage({ state: "stop", baseMin: 34, totalMin: null, detail: "Fermé pour l'hiver" })).toBe("Fermé pour l'hiver");
+    expect(closedColMessage({ state: "stop", baseMin: 34, totalMin: null, detail: "Fermé pour l'hiver" }, fr)).toBe("Fermé pour l'hiver");
   });
 
   it("falls back to a generic message when there's no detail", () => {
-    expect(closedColMessage({ state: "stop", baseMin: 34, totalMin: null })).toBe("Col fermé");
+    expect(closedColMessage({ state: "stop", baseMin: 34, totalMin: null }, fr)).toBe("Col fermé");
   });
 });

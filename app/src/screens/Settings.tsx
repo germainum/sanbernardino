@@ -9,16 +9,7 @@ import {
 } from "../push/register";
 import { fetchDevice, schedulePlannedTrip, updateDevicePrefs, type DevicePrefs } from "../lib/deviceApi";
 import type { PurchaseOutcome, RemoveAdsOffer } from "../iap/RevenueCat";
-
-const TYPE_LABELS: Record<string, string> = {
-  verdict: "Changement d'itinéraire recommandé",
-  col_open: "Ouverture du col",
-  tunnel_closed: "Fermeture du tunnel / incident",
-  jam_threshold: "Seuil de bouchon franchi",
-  gothard: "Déviation Gothard pertinente",
-  cleared: "Résorption d'un bouchon",
-  restriction: "Nouvelle restriction (chaînes, tonnage...)",
-};
+import { LANGS, LANG_NAMES, useLang } from "../i18n";
 
 const DEFAULT_PREFS: DevicePrefs = {
   directions: ["suisse", "italie"],
@@ -54,6 +45,7 @@ interface SettingsProps {
 }
 
 export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: SettingsProps) {
+  const { lang, setLang, t } = useLang();
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<DevicePrefs>(DEFAULT_PREFS);
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -146,52 +138,72 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
           <button
             onClick={onBack}
             style={{ background: C.card, borderRadius: 999, width: 40, height: 40, fontSize: 18, fontWeight: 800, color: C.dark, boxShadow: C.shadowChip }}
-            aria-label="Retour"
+            aria-label={t.common.back}
           >
             <span aria-hidden="true">←</span>
           </button>
-          <div style={{ fontSize: 22, fontWeight: 800, color: C.ink }}>Réglages</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: C.ink }}>{t.settings.title}</div>
         </div>
 
+        <SectionCard title={t.settings.languageTitle}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {LANGS.map((code) => (
+              <button
+                key={code}
+                onClick={() => setLang(code)}
+                style={{
+                  flex: "1 1 90px",
+                  padding: "10px 0",
+                  borderRadius: 999,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  background: lang === code ? C.mustard : C.bg,
+                  color: lang === code ? C.ink : C.muted,
+                }}
+              >
+                {LANG_NAMES[code]}
+              </button>
+            ))}
+          </div>
+        </SectionCard>
+
         {showExplanation && (
-          <SectionCard title="Notifications">
-            <p style={{ fontSize: 14, lineHeight: 1.5, margin: "0 0 14px", color: C.ink }}>
-              Sois prévenu quand le col ouvre, qu'un bouchon se forme, ou que le meilleur itinéraire change — sans avoir à rouvrir l'app.
-            </p>
+          <SectionCard title={t.settings.notificationsTitle}>
+            <p style={{ fontSize: 14, lineHeight: 1.5, margin: "0 0 14px", color: C.ink }}>{t.settings.notificationsExplain}</p>
             <button
               onClick={handleEnablePush}
               style={{ width: "100%", padding: "12px 0", borderRadius: 999, background: C.mustard, color: C.ink, fontWeight: 800, fontSize: 14 }}
             >
-              Activer les notifications
+              {t.settings.enableNotifications}
             </button>
           </SectionCard>
         )}
 
         {!pushEnabled && !showExplanation && (
-          <SectionCard title="Notifications">
+          <SectionCard title={t.settings.notificationsTitle}>
             <button
               onClick={handleEnablePush}
               style={{ width: "100%", padding: "12px 0", borderRadius: 999, background: C.mustard, color: C.ink, fontWeight: 800, fontSize: 14 }}
             >
-              Activer les notifications
+              {t.settings.enableNotifications}
             </button>
           </SectionCard>
         )}
 
         {pushEnabled && (
           <>
-            <SectionCard title="Directions suivies">
-              <Toggle label="Vers la Suisse" checked={prefs.directions.includes("suisse")} onChange={() => toggleDirection("suisse")} />
-              <Toggle label="Vers l'Italie" checked={prefs.directions.includes("italie")} onChange={() => toggleDirection("italie")} />
+            <SectionCard title={t.settings.directionsTitle}>
+              <Toggle label={t.directionSwitch.toSwitzerland} checked={prefs.directions.includes("suisse")} onChange={() => toggleDirection("suisse")} />
+              <Toggle label={t.directionSwitch.toItaly} checked={prefs.directions.includes("italie")} onChange={() => toggleDirection("italie")} />
             </SectionCard>
 
-            <SectionCard title="Types de notifications">
-              {Object.entries(TYPE_LABELS).map(([type, label]) => (
-                <Toggle key={type} label={label} checked={prefs.types[type] ?? false} onChange={() => toggleType(type)} />
+            <SectionCard title={t.settings.typesTitle}>
+              {(Object.keys(t.settings.types) as Array<keyof typeof t.settings.types>).map((type) => (
+                <Toggle key={type} label={t.settings.types[type]} checked={prefs.types[type] ?? false} onChange={() => toggleType(type)} />
               ))}
             </SectionCard>
 
-            <SectionCard title="Seuil de bouchon">
+            <SectionCard title={t.settings.jamThresholdTitle}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <input
                   type="range"
@@ -202,15 +214,17 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
                   onChange={(e) => void savePrefs({ ...prefs, jam_threshold_min: Number(e.target.value) })}
                   style={{ flex: 1, accentColor: C.successText }}
                 />
-                <span style={{ fontSize: 14, fontWeight: 800, color: C.ink, minWidth: 56, textAlign: "right" }}>{prefs.jam_threshold_min} min</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: C.ink, minWidth: 56, textAlign: "right" }}>
+                  {prefs.jam_threshold_min} {t.common.min}
+                </span>
               </div>
-              <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>Ne me prévenir qu'au-delà de ce retard.</p>
+              <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>{t.settings.jamThresholdNote}</p>
             </SectionCard>
 
-            <SectionCard title="Heures silencieuses">
+            <SectionCard title={t.settings.quietHoursTitle}>
               <div style={{ display: "flex", gap: 12 }}>
                 <label style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>De</div>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>{t.settings.quietHoursFrom}</div>
                   <input
                     type="time"
                     value={prefs.quiet_hours.from}
@@ -219,7 +233,7 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
                   />
                 </label>
                 <label style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>À</div>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>{t.settings.quietHoursTo}</div>
                   <input
                     type="time"
                     value={prefs.quiet_hours.to}
@@ -228,10 +242,10 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
                   />
                 </label>
               </div>
-              <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>Sauf incident majeur (fermeture).</p>
+              <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>{t.settings.quietHoursNote}</p>
             </SectionCard>
 
-            <SectionCard title="Trajet planifié">
+            <SectionCard title={t.settings.plannedTripTitle}>
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 {(["suisse", "italie"] as Direction[]).map((d) => (
                   <button
@@ -247,7 +261,7 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
                       color: tripDirection === d ? C.ink : C.muted,
                     }}
                   >
-                    {d === "suisse" ? "Vers la Suisse" : "Vers l'Italie"}
+                    {d === "suisse" ? t.directionSwitch.toSwitzerland : t.directionSwitch.toItaly}
                   </button>
                 ))}
               </div>
@@ -262,26 +276,24 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
                 disabled={!tripDepartAt}
                 style={{ width: "100%", padding: "10px 0", borderRadius: 999, background: tripDepartAt ? C.dark : C.line, color: "#fff", fontWeight: 700, fontSize: 13 }}
               >
-                Programmer le rappel (T-30 min)
+                {t.settings.plannedTripButton}
               </button>
-              {tripStatus === "saved" && <p style={{ fontSize: 12, color: C.successText, margin: "8px 0 0" }}>Rappel programmé.</p>}
-              {tripStatus === "error" && <p style={{ fontSize: 12, color: C.coralDeep, margin: "8px 0 0" }}>Échec — réessaie plus tard.</p>}
+              {tripStatus === "saved" && <p style={{ fontSize: 12, color: C.successText, margin: "8px 0 0" }}>{t.settings.plannedTripSaved}</p>}
+              {tripStatus === "error" && <p style={{ fontSize: 12, color: C.coralDeep, margin: "8px 0 0" }}>{t.settings.plannedTripError}</p>}
             </SectionCard>
 
     {saveStatus === "error" && (
-              <p style={{ fontSize: 12, color: C.coralDeep, textAlign: "center" }}>Échec de l'enregistrement — vérifie ta connexion.</p>
+              <p style={{ fontSize: 12, color: C.coralDeep, textAlign: "center" }}>{t.settings.saveError}</p>
             )}
           </>
         )}
 
-        <SectionCard title="Publicité">
+        <SectionCard title={t.settings.adsTitle}>
           {removeAds ? (
-            <p style={{ fontSize: 14, color: C.successText, fontWeight: 700, margin: 0 }}>✓ Publicité supprimée sur cet appareil.</p>
+            <p style={{ fontSize: 14, color: C.successText, fontWeight: 700, margin: 0 }}>{t.settings.adsRemoved}</p>
           ) : (
             <>
-              <p style={{ fontSize: 14, lineHeight: 1.5, margin: "0 0 14px", color: C.ink }}>
-                Retire la bannière et les publicités entre les écrans, définitivement.
-              </p>
+              <p style={{ fontSize: 14, lineHeight: 1.5, margin: "0 0 14px", color: C.ink }}>{t.settings.adsDescription}</p>
               <button
                 onClick={handlePurchase}
                 disabled={!offer || purchaseState.status === "purchasing"}
@@ -297,17 +309,17 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
                 }}
               >
                 {purchaseState.status === "purchasing"
-                  ? "Achat en cours…"
+                  ? t.settings.adsBuying
                   : offer
-                    ? `Supprimer la pub — ${offer.priceString}`
-                    : "Indisponible pour le moment"}
+                    ? t.settings.adsBuy(offer.priceString)
+                    : t.settings.adsUnavailable}
               </button>
               <button
                 onClick={handleRestore}
                 disabled={restoreState.status === "restoring"}
                 style={{ width: "100%", padding: "10px 0", borderRadius: 999, background: "transparent", color: C.muted, fontWeight: 700, fontSize: 13 }}
               >
-                {restoreState.status === "restoring" ? "Restauration…" : "Restaurer mes achats"}
+                {restoreState.status === "restoring" ? t.settings.adsRestoring : t.settings.adsRestore}
               </button>
             </>
           )}
@@ -316,15 +328,15 @@ export function Settings({ onBack, removeAds, offer, onPurchase, onRestore }: Se
         </SectionCard>
 
         <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.6, margin: "24px 0 0" }}>
-          Données trafic : Office fédéral des routes (OFROU) via{" "}
+          {t.settings.footerSource}{" "}
           <a href="https://opentransportdata.swiss" target="_blank" rel="noreferrer" style={{ color: C.muted }}>
-            opentransportdata.swiss
+            {t.settings.footerSourceLink}
           </a>
           .
           <br />
-          Temps de trajet : Google Routes.
+          {t.settings.footerTravelTime}
           <br />
-          San Bernardino n'est ni un service officiel ni affilié à l'OFROU ou à une autorité publique — outil indépendant, développé de façon indépendante.
+          {t.settings.footerDisclaimer}
         </p>
       </div>
     </div>

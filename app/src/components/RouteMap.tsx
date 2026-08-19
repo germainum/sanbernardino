@@ -2,9 +2,10 @@ import { useMemo } from "react";
 import { MapContainer, Marker, Polyline, TileLayer, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import type { Direction, EvaluatedSnapshot } from "@san-bernardino/core";
+import type { EvaluatedSnapshot } from "@san-bernardino/core";
 import { C } from "../theme";
 import { decodePolyline } from "../lib/polyline";
+import { useLang } from "../i18n";
 
 // The map is an orientation landmark, not a decision tool (StatusLine/Verdict/Comparison
 // already carry live traffic state) — so route lines here encode only "which one is
@@ -19,9 +20,9 @@ const SECONDARY = C.muted;
 const FALLBACK_NORTH: [number, number] = [46.62, 9.2];
 const FALLBACK_SOUTH: [number, number] = [46.39, 9.23];
 
-const DIRECTION_LABELS: Record<Direction, { top: "CH" | "IT"; bottom: "CH" | "IT"; topLabel: string; bottomLabel: string }> = {
-  italie: { top: "CH", bottom: "IT", topLabel: "Départ · Suisse", bottomLabel: "Arrivée · Italie" },
-  suisse: { top: "IT", bottom: "CH", topLabel: "Départ · Italie", bottomLabel: "Arrivée · Suisse" },
+const COUNTRY_BY_DIRECTION: Record<"italie" | "suisse", { top: "CH" | "IT"; bottom: "CH" | "IT" }> = {
+  italie: { top: "CH", bottom: "IT" },
+  suisse: { top: "IT", bottom: "CH" },
 };
 
 /** Ported from AxisMap.tsx's old CountryNode SVG artwork, recentered into a standalone 50x50 marker. */
@@ -98,8 +99,13 @@ interface RouteMapProps {
 }
 
 export function RouteMap({ evaluated }: RouteMapProps) {
+  const { t } = useLang();
   const { snapshot, verdict } = evaluated;
-  const labels = DIRECTION_LABELS[snapshot.direction];
+  const countries = COUNTRY_BY_DIRECTION[snapshot.direction];
+  const labels =
+    snapshot.direction === "italie"
+      ? { ...countries, topLabel: t.routeMap.departSuisse, bottomLabel: t.routeMap.arriveeItalie }
+      : { ...countries, topLabel: t.routeMap.departItalie, bottomLabel: t.routeMap.arriveeSuisse };
 
   const tunnelCoords = useMemo(() => (snapshot.tunnel.polyline ? decodePolyline(snapshot.tunnel.polyline) : []), [snapshot.tunnel.polyline]);
   const colCoords = useMemo(() => (snapshot.col.polyline ? decodePolyline(snapshot.col.polyline) : []), [snapshot.col.polyline]);
@@ -192,11 +198,11 @@ export function RouteMap({ evaluated }: RouteMapProps) {
       >
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: C.ink }}>
           <span aria-hidden="true" style={{ width: 14, height: tunnelAccent ? 4 : 2, borderRadius: 2, background: tunnelColor, opacity: tunnelAccent ? 1 : 0.7 }} />
-          Tunnel
+          {t.common.tunnel}
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: C.ink }}>
           <span aria-hidden="true" style={{ width: 14, height: colAccent ? 4 : 2, borderRadius: 2, background: colColor, opacity: colAccent ? 1 : 0.7 }} />
-          Col
+          {t.common.col}
         </span>
       </div>
     </div>

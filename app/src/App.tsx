@@ -3,10 +3,19 @@ import { Home } from "./screens/Home";
 import { Settings } from "./screens/Settings";
 import { hideBanner, initAds, maybeShowInterstitial } from "./ads/AdManager";
 import { useRemoveAds } from "./hooks/useRemoveAds";
+import { LangProvider } from "./i18n";
 
 type Screen = "home" | "settings";
 
 export default function App() {
+  return (
+    <LangProvider>
+      <AppScreens />
+    </LangProvider>
+  );
+}
+
+function AppScreens() {
   const [screen, setScreen] = useState<Screen>("home");
   const { removeAds, ready, offer, purchase, restore } = useRemoveAds();
   const adsInitialized = useRef(false);

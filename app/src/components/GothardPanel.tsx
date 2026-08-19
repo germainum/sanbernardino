@@ -1,5 +1,6 @@
 import type { RouteInfo } from "@san-bernardino/core";
 import { C, STATE } from "../theme";
+import { useLang } from "../i18n";
 
 interface GothardPanelProps {
   gothard: RouteInfo;
@@ -7,6 +8,7 @@ interface GothardPanelProps {
 }
 
 export function GothardPanel({ gothard, recommended }: GothardPanelProps) {
+  const { t } = useLang();
   const st = STATE[gothard.state];
   return (
     <div
@@ -20,21 +22,21 @@ export function GothardPanel({ gothard, recommended }: GothardPanelProps) {
       }}
     >
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", color: recommended ? C.amberDeep : C.muted, marginBottom: 10 }}>
-        {recommended ? "ITINÉRAIRE ALTERNATIF · A2" : "ALTERNATIVE ÉCARTÉE · A2"}
+        {recommended ? t.gothardPanel.altRoute : t.gothardPanel.altDismissed}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 48, height: 48, borderRadius: 14, flexShrink: 0, background: st.grad }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: C.ink }}>Gothard</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: C.ink }}>{t.gothardPanel.name}</div>
           <div style={{ fontSize: 12.5, color: st.textColor, fontWeight: 600, marginTop: 2 }}>{gothard.detail}</div>
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.ink, lineHeight: 1 }}>
             {gothard.totalMin}
-            <span style={{ fontSize: 12, color: C.muted }}> min</span>
+            <span style={{ fontSize: 12, color: C.muted }}> {t.common.min}</span>
           </div>
           <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginTop: 2 }}>
-            {recommended ? `+${gothard.detourMin} min détour` : "pas plus rapide"}
+            {recommended ? t.gothardPanel.detour(gothard.detourMin ?? 0) : t.gothardPanel.notFaster}
           </div>
         </div>
       </div>
